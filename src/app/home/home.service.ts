@@ -16,9 +16,9 @@ export class HomeService {
 
     getDataset() {
         return this.#http.get<{ payload: Array<string> }>("/dataset").pipe(
-			map(v => v.payload.map(v => v.replace(".jsonl", ""))),
+            map(v => v.payload.map(v => v.replace(".jsonl", ""))),
             take(1)
-		);
+        );
     }
 
     addDataset(payload: AddDatasetPayload) {

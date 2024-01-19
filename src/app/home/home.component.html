@@ -48,7 +48,7 @@
                         <textarea nz-input [formControlName]="'assistant'" rows="8" spellcheck="true" autocomplete="off" required></textarea>
                     </div>
                     <div class="app-text-center">
-                        <button nz-button [nzType]="'primary'" [disabled]="throttle || generateJSONLStatus == 'PROCESS' || generateJSONLFormGroup.invalid">
+                        <button nz-button [nzType]="'primary'" [disabled]="generateJSONLStatus == 'PROCESS' || generateJSONLFormGroup.invalid">
                             <b>ADD</b>
                         </button>
                     </div>

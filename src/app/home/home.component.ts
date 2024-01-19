@@ -15,8 +15,8 @@ import { NzSpaceModule } from "ng-zorro-antd/space";
 import { NzSpinModule } from "ng-zorro-antd/spin";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
-import { BehaviorSubject, Subscription, concatMap, debounceTime, delay, distinctUntilChanged, exhaustMap, filter, map, noop, of, skip } from "rxjs";
-import { defer as deferLD, random } from "lodash";
+import { BehaviorSubject, Subscription, debounceTime, distinctUntilChanged, exhaustMap, filter, map, noop } from "rxjs";
+import { defer as deferLD } from "lodash";
 
 import { HomeService } from "./home.service";
 
@@ -51,8 +51,6 @@ import { TruncatePipe } from "../shared/truncate.pipe";
     styleUrls: ["./home.component.less"]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-
-    throttle = false;
 
     listDataset: Array<string> = [];
     generateJSONLStatus = "IDLE";
@@ -134,7 +132,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     #instructionSaveSubscription: Subscription | null = null;
 
     #removeNewLinesSubscription: Subscription | null = null;
-    #throttleSubscription: Subscription | null = null;
 
     readonly #renderer2 = inject(Renderer2);
     readonly #host = inject(ElementRef<HTMLElement>);
@@ -153,12 +150,15 @@ export class HomeComponent implements OnInit, OnDestroy {
      * @private
     */
     ngOnInit() {
-		this.#homeService.getDataset().pipe(
+        // 
+        this.addCustomValidators();
+        // 
+        this.#homeService.getDataset().pipe(
             map(v => v.sort((a, b) => a.localeCompare(b)))
         )
         .subscribe({
-			next: v => this.listDataset = v
-		});
+            next: v => this.listDataset = v
+        });
         // 
         this.#homeService.existsInstructionState().subscribe({
             next: v => {
@@ -175,19 +175,13 @@ export class HomeComponent implements OnInit, OnDestroy {
             distinctUntilChanged(),
             exhaustMap(v => {
                 if (v) {
-                    if (this.#instruction.valid) {
-                        return this.#homeService.saveInstructionState(this.#instruction.value).pipe(
-                            map(() => v)
-                        );
-                    }
-                    return of(v);
-                }
-                if (!v && this.#instruction.valid) {
-                    return this.#homeService.removeInstructionState().pipe(
+                    return this.#homeService.saveInstructionState(this.#instruction.value || "").pipe(
                         map(() => v)
                     );
                 }
-                return of(v);
+                return this.#homeService.removeInstructionState().pipe(
+                    map(() => v)
+                );
             })
         )
         .subscribe({
@@ -207,7 +201,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.#instructionSubscription = this.#instruction.valueChanges.pipe(
             filter(() => !!this.#instructionSave.value),
             debounceTime(100),
-            exhaustMap(() => this.#homeService.saveInstructionState(this.#instruction.value).pipe(
+            exhaustMap(v => this.#homeService.saveInstructionState(v).pipe(
                 map(() => null)
             ))
         )
@@ -250,17 +244,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         .subscribe({
             next: v => this.#extractedText.patchValue(v)
         });
-        // 
-        this.#throttleSubscription = this.#throttleSubject.pipe(
-            skip(1),
-            map(() => random(7500, 10000)),
-            concatMap(v => of(v).pipe(
-                delay(v)
-            ))
-        )
-        .subscribe({
-            next: () => this.throttle = false
-        });
     }
 
     /**
@@ -279,14 +262,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.#removeNewLinesSubscription?.unsubscribe();
         this.#removeNewLinesSubscription = null;
-
-        this.#throttleSubscription?.unsubscribe();
-        this.#throttleSubscription = null;
     }
 
     addDataset() {
-
-        if (this.generateJSONLStatus == "PROCESS" || this.generateJSONLFormGroup.invalid || this.throttle) {
+        // 
+        if (this.generateJSONLStatus == "PROCESS" || this.generateJSONLFormGroup.invalid) {
             return;
         }
 
@@ -299,10 +279,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.#assistant.reset();
                 this.listDataset = v;
                 this.generateJSONLStatus = "DONE";
-				this.#nzNotificationService.success("Generate JSONL", "Dataset has been added", {
-					nzCloseIcon: this.emptyRef
-				});
-                this.throttle = true;
+                this.#nzNotificationService.success("Generate JSONL", "Dataset has been added", {
+                    nzCloseIcon: this.emptyRef
+                });
                 this.#throttleSubject.next("HOLD");
             },
             error: e => {
@@ -502,5 +481,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         // 
         this.#removeNewLines.patchValue(false);
         this.#removeNewLines.disable();
+    }
+
+    private addCustomValidators() {
+        this.#name.addValidators(control => {
+            const value = control.value as string;
+            const vSplit = value.split(" ").map(v => v.trim());
+            if (value && vSplit.some(v => v == "")) {
+                return { err: true };
+            }
+            return null;
+        });
     }
 }
