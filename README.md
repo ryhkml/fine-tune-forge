@@ -1,13 +1,8 @@
 <div align="center">
-    <div>
-        <b style="font-size: 38px;">FineTuneForge</b>
-    </div>
-    <div>
-        JSONL Generator for Fine-tuning
-    </div>
+    <h1>
+        <b>FineTuneForge</b>
+    </h1>
 </div>
-
-<hr>
 
 FineTuneForge is a tool designed specifically for generating JSON Lines (JSONL) to facilitate the fine-tuning of AI language models like Google's PaLM 2 and OpenAI's GPT-3.5. It enables developers to easily transform text data into a JSONL format that machines can read.
 
