@@ -1,0 +1,174 @@
+{
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "gpt-fine-tuning-creator": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "less"
+                }
+            },
+            "root": "",
+            "sourceRoot": "src",
+            "prefix": "app",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "outputPath": "dist/gpt-fine-tuning-creator/browser",
+                        "index": "src/index.html",
+                        "main": "src/main.ts",
+                        "polyfills": [
+                            "zone.js"
+                        ],
+                        "tsConfig": "tsconfig.app.json",
+                        "inlineStyleLanguage": "less",
+                        "assets": [
+                            "src/favicon.ico",
+                            "src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                                "output": "/assets/"
+                            }
+                        ],
+                        "styles": [
+                            "src/styles.less",
+                            "src/styles.base.css"
+                        ],
+                        "scripts": [
+                            "src/assets/static/custom.js"
+                        ],
+                        "allowedCommonJsDependencies": [
+                            "lodash"
+                        ]
+                    },
+                    "configurations": {
+                        "production": {
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "1.5mb",
+                                    "maximumError": "2mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "15kb",
+                                    "maximumError": "20kb"
+                                }
+                            ],
+                            "outputHashing": "all"
+                        },
+                        "development": {
+                            "buildOptimizer": false,
+                            "optimization": false,
+                            "vendorChunk": true,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "configurations": {
+                        "production": {
+                            "buildTarget": "gpt-fine-tuning-creator:build:production"
+                        },
+                        "development": {
+                            "buildTarget": "gpt-fine-tuning-creator:build:development"
+                        }
+                    },
+                    "defaultConfiguration": "development"
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n",
+                    "options": {
+                        "buildTarget": "gpt-fine-tuning-creator:build"
+                    }
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "polyfills": [
+                            "zone.js",
+                            "zone.js/testing"
+                        ],
+                        "tsConfig": "tsconfig.spec.json",
+                        "inlineStyleLanguage": "less",
+                        "assets": [
+                            "src/favicon.ico",
+                            "src/assets"
+                        ],
+                        "styles": [
+                            "./node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
+                            "src/styles.less"
+                        ],
+                        "scripts": []
+                    }
+                },
+                "server": {
+                    "builder": "@angular-devkit/build-angular:server",
+                    "options": {
+                        "outputPath": "dist/gpt-fine-tuning-creator/server",
+                        "main": "server.ts",
+                        "tsConfig": "tsconfig.server.json",
+                        "inlineStyleLanguage": "less"
+                    },
+                    "configurations": {
+                        "production": {
+                            "outputHashing": "media"
+                        },
+                        "development": {
+                            "buildOptimizer": false,
+                            "optimization": false,
+                            "sourceMap": true,
+                            "extractLicenses": false,
+                            "vendorChunk": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve-ssr": {
+                    "builder": "@angular-devkit/build-angular:ssr-dev-server",
+                    "configurations": {
+                        "development": {
+                            "browserTarget": "gpt-fine-tuning-creator:build:development",
+                            "serverTarget": "gpt-fine-tuning-creator:server:development"
+                        },
+                        "production": {
+                            "browserTarget": "gpt-fine-tuning-creator:build:production",
+                            "serverTarget": "gpt-fine-tuning-creator:server:production"
+                        }
+                    },
+                    "defaultConfiguration": "development"
+                },
+                "prerender": {
+                    "builder": "@angular-devkit/build-angular:prerender",
+                    "options": {
+                        "routes": [
+                            "/"
+                        ]
+                    },
+                    "configurations": {
+                        "production": {
+                            "browserTarget": "gpt-fine-tuning-creator:build:production",
+                            "serverTarget": "gpt-fine-tuning-creator:server:production"
+                        },
+                        "development": {
+                            "browserTarget": "gpt-fine-tuning-creator:build:development",
+                            "serverTarget": "gpt-fine-tuning-creator:server:development"
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                }
+            }
+        }
+    },
+    "cli": {
+        "analytics": "5b86723d-6be0-4e4d-a086-fe26d0fd73cf"
+    }
+}

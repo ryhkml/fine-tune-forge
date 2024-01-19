@@ -1,0 +1,8 @@
+.vscode
+.angular
+
+Dockerfile
+docker-compose*
+cosign*
+
+node_modules/

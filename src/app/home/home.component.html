@@ -1,0 +1,172 @@
+<div class="app-section app-section-small" app-height-viewport="offset-top: true; offset-bottom: true">
+    <div class="app-container app-container-xlarge">
+        <div class="app-grid app-grid-large app-child-width-1-2@m">
+            <!-- Grid 1 -->
+            <div class="app-margin-auto">
+                <div class="app-text-center">
+                    <h1 nz-typography class="app-margin-remove">Generate JSONL</h1>
+                    <p nz-typography class="app-margin-remove">Prepare and upload training data. This tool seamlessly transforms form data into the JSON Lines format.</p>
+                </div>
+                <form (ngSubmit)="addDataset()" [formGroup]="generateJSONLFormGroup" class="app-margin">
+                    <div class="app-margin">
+                        <div class="app-margin-xsmall-bottom">
+                            <b nz-typography>Base Model</b>
+                        </div>
+                        <nz-select [formControlName]="'baseModel'" style="width: 150px;">
+                            <nz-option [nzLabel]="'PaLM 2 for Text'" [nzValue]="'GOOGLE-TEXT-BISON'" [nzDisabled]="true"></nz-option>
+                            <nz-option [nzLabel]="'PaLM 2 for Chat'" [nzValue]="'GOOGLE-CHAT-BISON'" [nzDisabled]="true"></nz-option>
+                            <nz-option [nzLabel]="'GPT-3.5'" [nzValue]="'OPENAI'"></nz-option>
+                        </nz-select>
+                    </div>
+                    <div class="app-margin">
+                        <div class="app-margin-xsmall-bottom">
+                            <b nz-typography>Name</b>
+                        </div>
+                        <input nz-input [formControlName]="'name'" placeholder="Math tutor" type="text" spellcheck="true" autocomplete="off" minlength="3" maxlength="64" required>
+                    </div>
+                    <div class="app-margin">
+                        <div class="app-margin-xsmall-bottom">
+                            <div>
+                                <label nz-checkbox [formControlName]="'instructionSave'">
+                                    <b nz-typography>{{ generateJSONLT1 }}</b>
+                                </label>
+                            </div>
+                            <span nz-typography [nzType]="'secondary'">Check to save instructions</span>
+                        </div>
+                        <textarea nz-input [formControlName]="'instruction'" placeholder="You are a personal math tutor. I will provide some mathematical equations or concepts, and it will be your job to explain them in easy-to-understand terms" rows="4" spellcheck="true" autocomplete="off" required></textarea>
+                    </div>
+                    <div class="app-margin">
+                        <div class="app-margin-xsmall-bottom">
+                            <b nz-typography>{{ generateJSONLT2 }}</b>
+                        </div>
+                        <textarea nz-input [formControlName]="'user'" rows="4" spellcheck="true" autocomplete="off" required></textarea>
+                    </div>
+                    <div class="app-margin">
+                        <div class="app-margin-xsmall-bottom">
+                            <b nz-typography>{{ generateJSONLT3 }}</b>
+                        </div>
+                        <textarea nz-input [formControlName]="'assistant'" rows="8" spellcheck="true" autocomplete="off" required></textarea>
+                    </div>
+                    <div class="app-text-center">
+                        <button nz-button [nzType]="'primary'" [disabled]="throttle || generateJSONLStatus == 'PROCESS' || generateJSONLFormGroup.invalid">
+                            <b>ADD</b>
+                        </button>
+                    </div>
+                </form>
+                @if (listDataset.length) {
+                    <h3 nz-typography>List Dataset</h3>
+                    <ul>
+                        @for (dataset of listDataset; track $index; let isLast = $last) {
+                            <li [ngClass]="{ 'app-margin-small': !isLast }">
+                                <nz-space [nzAlign]="'center'">
+                                    <span *nzSpaceItem>
+                                        <button (click)="downloadDataset(dataset)" nz-button [nzSize]="'small'" title="Download Dataset" tabindex="-1">
+                                            <span nz-icon [nzType]="'download'"></span>
+                                        </button>
+                                    </span>
+                                    <span *nzSpaceItem>
+                                        <button (click)="setName(dataset)" nz-button [nzSize]="'small'" title="Set Name" tabindex="-1">
+                                            <span nz-icon [nzType]="'form'"></span>
+                                        </button>
+                                    </span>
+                                    <span *nzSpaceItem>
+                                        <button (click)="removeDataset(dataset)" nz-button [nzType]="'primary'" [nzDanger]="true" [nzSize]="'small'" title="Remove Dataset" type="reset" tabindex="-1">
+                                            <span nz-icon [nzType]="'delete'"></span>
+                                        </button>
+                                    </span>
+                                    <span *nzSpaceItem nz-typography>
+                                        <b>{{ dataset }}</b>
+                                    </span>
+                                </nz-space>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+            <!-- Grid 2 -->
+            <div class="app-margin-auto">
+                <div class="app-margin-small app-text-center">
+                    <h1 nz-typography class="app-margin-remove">Image OCR</h1>
+                    <p nz-typography class="app-margin-remove">Identify and extract text in different types of images.</p>
+                </div>
+                <nz-spin [nzSpinning]="imageOCRStatus == 'SELECTED'" [nzTip]="'Please wait'">
+                    <form [formGroup]="imageOCRFormGroup" class="app-margin" enctype="multipart/form-data">
+                        <div class="app-margin-small app-text-center">
+                            <input #fileRef (change)="onImageSelected($event)" type="file" name="files" accept=".gif,.jpg,.jpeg,.png,.webp" size="19922944" multiple hidden>
+                            <div class="app-margin-small">
+                                <nz-space [nzAlign]="'center'" [nzSize]="6">
+                                    <span *nzSpaceItem>
+                                        @if (imageOCRStatus == "IDLE") {
+                                            <button (click)="fileRef.click()" nz-button [disabled]="files.length == 15" style="width: 100px;" tabindex="-1">
+                                                <b>SELECT</b>
+                                            </button>
+                                        } @else {
+                                            <button nz-button 
+                                                (click)="resetImage()" 
+                                                [nzType]="'primary'"
+                                                [nzDanger]="true" 
+                                                [disabled]="imageOCRStatus != 'DONE' && imageOCRStatus != 'ERROR'" title="Reset" type="reset" style="width: 100px;" tabindex="-1">
+                                                <b>RESET</b>
+                                            </button>
+                                        }
+                                    </span>
+                                    <span *nzSpaceItem>
+                                        <button (click)="scanImage()" nz-button [nzType]="'primary'" [disabled]="files.length == 0 || imageOCRStatus == 'DONE'" style="width: 100px;" tabindex="-1">
+                                            <b>SCAN</b>
+                                        </button>
+                                    </span>
+                                </nz-space>
+                            </div>
+                            <div>
+                                <p nz-typography class="app-margin-remove">Supports .gif, .jpg, .jpeg, .png, or .webp (15 pages, 19MB each)</p>
+                            </div>
+                        </div>
+                        <div class="app-margin">
+                            <div class="app-margin-xsmall-bottom">
+                                <div>
+                                    <label nz-checkbox [formControlName]="'removeNewLines'" [nzDisabled]="imageOCRStatus != 'DONE'">
+                                        <b nz-typography>Remove newlines</b>
+                                    </label>
+                                </div>
+                                <span nz-typography [nzType]="'secondary'">Check to remove newlines</span>
+                            </div>
+                            <textarea nz-input [formControlName]="'extractedText'" rows="15" spellcheck="true" autocomplete="off"></textarea>
+                        </div>
+                        <div>
+                            <nz-alert [nzType]="'warning'" [nzMessage]="messageImageOCRWarningRef"></nz-alert>
+                            <ng-template #messageImageOCRWarningRef>
+                                <p nz-typography class="app-margin-remove"><strong>WARNING:</strong> Note that some of these image formats are "lossy" (for example, JPEG). Reducing file sizes for lossy formats may result in a degradation of image quality and accuracy of results from Document AI.</p>
+                            </ng-template>
+                        </div>
+                    </form>
+                    @if (imagesBase64.length) {
+                        <h3 nz-typography>Image Preview</h3>
+                        <div class="app-grid app-grid-small app-child-width-1-4@m">
+                            @for (base64 of imagesBase64; track base64.id) {
+                                <div class="app-text-center">
+                                    <div class="app-margin-small">
+                                        <nz-space [nzAlign]="'center'">
+                                            <span *nzSpaceItem>
+                                                <button (click)="removeImage(base64.id)" nz-button [nzType]="'primary'" [nzDanger]="true" [nzSize]="'small'" title="Remove Image" type="reset" tabindex="-1">
+                                                    <span nz-icon [nzType]="'delete'"></span>
+                                                </button>
+                                            </span>
+                                            <span *nzSpaceItem [title]="base64.name">
+                                                <b>{{ base64.name | truncate }}</b>
+                                            </span>
+                                        </nz-space>
+                                    </div>
+                                    <div>
+                                        <img nz-image [nzSrc]="base64.src" [alt]="base64.name" class="img-base64">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </nz-spin>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Empty -->
+<ng-template #emptyRef></ng-template>

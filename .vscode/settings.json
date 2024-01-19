@@ -1,0 +1,20 @@
+{
+    "[javascript]": {
+        "editor.tabSize": 4
+    },
+    "[typescript]": {
+        "editor.tabSize": 4
+    },
+    "[html]": {
+        "editor.tabSize": 4
+    },
+    "[css]": {
+        "editor.tabSize": 4
+    },
+    "[scss]": {
+        "editor.tabSize": 4
+    },
+    "[json]": {
+        "editor.tabSize": 4
+    }
+}

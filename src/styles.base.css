@@ -1,0 +1,2246 @@
+/*
+   * Breakpoints
+   */
+:root {
+    --app-breakpoint-s: 640px;
+    --app-breakpoint-m: 960px;
+    --app-breakpoint-l: 1200px;
+    --app-breakpoint-xl: 1600px;
+}
+
+/* ========================================================================
+     Component: Section
+   ========================================================================== */
+/*
+   * 1. Make it work with `100vh` and height in general
+   */
+.app-section {
+    display: flow-root;
+    box-sizing: border-box;
+    /* 1 */
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 960px) {
+    .app-section {
+        padding-top: 70px;
+        padding-bottom: 70px;
+    }
+}
+
+/*
+   * Remove margin from the last-child
+   */
+.app-section> :last-child {
+    margin-bottom: 0;
+}
+
+/* Size modifiers
+   ========================================================================== */
+/*
+   * XSmall
+   */
+.app-section-xsmall {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/*
+   * Small
+   */
+.app-section-small {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+/*
+   * Large
+   */
+.app-section-large {
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-section-large {
+        padding-top: 140px;
+        padding-bottom: 140px;
+    }
+}
+
+/*
+   * XLarge
+   */
+.app-section-xlarge {
+    padding-top: 140px;
+    padding-bottom: 140px;
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-section-xlarge {
+        padding-top: 210px;
+        padding-bottom: 210px;
+    }
+}
+
+/* Style modifiers
+   ========================================================================== */
+/*
+   * Default
+   */
+.app-section-default {
+    background: #fff;
+    --app-navbar-color: dark;
+}
+
+/*
+   * Muted
+   */
+.app-section-muted {
+    background: #f8f8f8;
+    --app-navbar-color: dark;
+}
+
+/*
+   * Primary
+   */
+.app-section-primary {
+    background: #1e87f0;
+    --app-navbar-color: light;
+}
+
+/*
+   * Secondary
+   */
+.app-section-secondary {
+    background: #222;
+    --app-navbar-color: light;
+}
+
+/* Overlap modifier
+   ========================================================================== */
+/*
+   * Reserved modifier to make a section overlap another section with an border image
+   * Implemented by the theme
+   */
+/* ========================================================================
+     Component: Container
+   ========================================================================== */
+/*
+   * 1. Box sizing has to be `content-box` so the max-width is always the same and
+   *    unaffected by the padding on different breakpoints. It's important for the size modifiers.
+   */
+.app-container {
+    display: flow-root;
+    /* 1 */
+    box-sizing: content-box;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-container {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-container {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+}
+
+/*
+   * Remove margin from the last-child
+   */
+.app-container> :last-child {
+    margin-bottom: 0;
+}
+
+/*
+   * Remove padding from nested containers
+   */
+.app-container .app-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Size modifier
+   ========================================================================== */
+.app-container-xsmall {
+    max-width: 750px;
+}
+
+.app-container-small {
+    max-width: 900px;
+}
+
+.app-container-large {
+    max-width: 1400px;
+}
+
+.app-container-xlarge {
+    max-width: 1600px;
+}
+
+.app-container-expand {
+    max-width: none;
+}
+
+/* Expand modifier
+   ========================================================================== */
+/*
+   * Expand one side only
+   */
+.app-container-expand-left {
+    margin-left: 0;
+}
+
+.app-container-expand-right {
+    margin-right: 0;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+
+    .app-container-expand-left.app-container-xsmall,
+    .app-container-expand-right.app-container-xsmall {
+        max-width: calc(50% + (750px / 2) - 30px);
+    }
+
+    .app-container-expand-left.app-container-small,
+    .app-container-expand-right.app-container-small {
+        max-width: calc(50% + (900px / 2) - 30px);
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+
+    .app-container-expand-left,
+    .app-container-expand-right {
+        max-width: calc(50% + (1200px / 2) - 40px);
+    }
+
+    .app-container-expand-left.app-container-xsmall,
+    .app-container-expand-right.app-container-xsmall {
+        max-width: calc(50% + (750px / 2) - 40px);
+    }
+
+    .app-container-expand-left.app-container-small,
+    .app-container-expand-right.app-container-small {
+        max-width: calc(50% + (900px / 2) - 40px);
+    }
+
+    .app-container-expand-left.app-container-large,
+    .app-container-expand-right.app-container-large {
+        max-width: calc(50% + (1400px / 2) - 40px);
+    }
+
+    .app-container-expand-left.app-container-xlarge,
+    .app-container-expand-right.app-container-xlarge {
+        max-width: calc(50% + (1600px / 2) - 40px);
+    }
+}
+
+/* Item
+   ========================================================================== */
+/*
+   * Utility classes to reset container padding on the left or right side
+   * Note: It has to be negative margin on the item, because it's specific to the item.
+   */
+.app-container-item-padding-remove-left,
+.app-container-item-padding-remove-right {
+    width: calc(100% + 15px);
+}
+
+.app-container-item-padding-remove-left {
+    margin-left: -15px;
+}
+
+.app-container-item-padding-remove-right {
+    margin-right: -15px;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+
+    .app-container-item-padding-remove-left,
+    .app-container-item-padding-remove-right {
+        width: calc(100% + 30px);
+    }
+
+    .app-container-item-padding-remove-left {
+        margin-left: -30px;
+    }
+
+    .app-container-item-padding-remove-right {
+        margin-right: -30px;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+
+    .app-container-item-padding-remove-left,
+    .app-container-item-padding-remove-right {
+        width: calc(100% + 40px);
+    }
+
+    .app-container-item-padding-remove-left {
+        margin-left: -40px;
+    }
+
+    .app-container-item-padding-remove-right {
+        margin-right: -40px;
+    }
+}
+
+/* ========================================================================
+     Component: Grid
+   ========================================================================== */
+/*
+   * 1. Allow cells to wrap into the next line
+   * 2. Reset list
+   */
+.app-grid {
+    display: flex;
+    /* 1 */
+    flex-wrap: wrap;
+    /* 2 */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/*
+   * Grid cell
+   * Note: Space is allocated solely based on content dimensions, but shrinks: 0 1 auto
+   * Reset margin for e.g. paragraphs
+   */
+.app-grid>* {
+    margin: 0;
+}
+
+/*
+   * Remove margin from the last-child
+   */
+.app-grid>*> :last-child {
+    margin-bottom: 0;
+}
+
+/* Gutter
+   ========================================================================== */
+/*
+   * Default
+   */
+/* Horizontal */
+.app-grid {
+    margin-left: -30px;
+}
+
+.app-grid>* {
+    padding-left: 30px;
+}
+
+/* Vertical */
+.app-grid+.app-grid,
+.app-grid>.app-grid-margin,
+*+.app-grid-margin {
+    margin-top: 30px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+
+    /* Horizontal */
+    .app-grid {
+        margin-left: -40px;
+    }
+
+    .app-grid>* {
+        padding-left: 40px;
+    }
+
+    /* Vertical */
+    .app-grid+.app-grid,
+    .app-grid>.app-grid-margin,
+    *+.app-grid-margin {
+        margin-top: 40px;
+    }
+}
+
+/*
+   * Small
+   */
+/* Horizontal */
+.app-grid-small,
+.app-grid-column-small {
+    margin-left: -15px;
+}
+
+.app-grid-small>*,
+.app-grid-column-small>* {
+    padding-left: 15px;
+}
+
+/* Vertical */
+.app-grid+.app-grid-small,
+.app-grid+.app-grid-row-small,
+.app-grid-small>.app-grid-margin,
+.app-grid-row-small>.app-grid-margin,
+*+.app-grid-margin-small {
+    margin-top: 15px;
+}
+
+/*
+   * Medium
+   */
+/* Horizontal */
+.app-grid-medium,
+.app-grid-column-medium {
+    margin-left: -30px;
+}
+
+.app-grid-medium>*,
+.app-grid-column-medium>* {
+    padding-left: 30px;
+}
+
+/* Vertical */
+.app-grid+.app-grid-medium,
+.app-grid+.app-grid-row-medium,
+.app-grid-medium>.app-grid-margin,
+.app-grid-row-medium>.app-grid-margin,
+*+.app-grid-margin-medium {
+    margin-top: 30px;
+}
+
+/*
+   * Large
+   */
+/* Horizontal */
+.app-grid-large,
+.app-grid-column-large {
+    margin-left: -40px;
+}
+
+.app-grid-large>*,
+.app-grid-column-large>* {
+    padding-left: 40px;
+}
+
+/* Vertical */
+.app-grid+.app-grid-large,
+.app-grid+.app-grid-row-large,
+.app-grid-large>.app-grid-margin,
+.app-grid-row-large>.app-grid-margin,
+*+.app-grid-margin-large {
+    margin-top: 40px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+
+    /* Horizontal */
+    .app-grid-large,
+    .app-grid-column-large {
+        margin-left: -70px;
+    }
+
+    .app-grid-large>*,
+    .app-grid-column-large>* {
+        padding-left: 70px;
+    }
+
+    /* Vertical */
+    .app-grid+.app-grid-large,
+    .app-grid+.app-grid-row-large,
+    .app-grid-large>.app-grid-margin,
+    .app-grid-row-large>.app-grid-margin,
+    *+.app-grid-margin-large {
+        margin-top: 70px;
+    }
+}
+
+/*
+   * Collapse
+   */
+/* Horizontal */
+.app-grid-collapse,
+.app-grid-column-collapse {
+    margin-left: 0;
+}
+
+.app-grid-collapse>*,
+.app-grid-column-collapse>* {
+    padding-left: 0;
+}
+
+/* Vertical */
+.app-grid+.app-grid-collapse,
+.app-grid+.app-grid-row-collapse,
+.app-grid-collapse>.app-grid-margin,
+.app-grid-row-collapse>.app-grid-margin {
+    margin-top: 0;
+}
+
+/* Divider
+   ========================================================================== */
+.app-grid-divider>* {
+    position: relative;
+}
+
+.app-grid-divider> :not(.app-first-column)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid #e5e5e5;
+}
+
+/* Vertical */
+.app-grid-divider.app-grid-stack>.app-grid-margin::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #e5e5e5;
+}
+
+/*
+   * Default
+   */
+/* Horizontal */
+.app-grid-divider {
+    margin-left: -60px;
+}
+
+.app-grid-divider>* {
+    padding-left: 60px;
+}
+
+.app-grid-divider> :not(.app-first-column)::before {
+    left: 30px;
+}
+
+/* Vertical */
+.app-grid-divider.app-grid-stack>.app-grid-margin {
+    margin-top: 60px;
+}
+
+.app-grid-divider.app-grid-stack>.app-grid-margin::before {
+    top: -30px;
+    left: 60px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+
+    /* Horizontal */
+    .app-grid-divider {
+        margin-left: -80px;
+    }
+
+    .app-grid-divider>* {
+        padding-left: 80px;
+    }
+
+    .app-grid-divider> :not(.app-first-column)::before {
+        left: 40px;
+    }
+
+    /* Vertical */
+    .app-grid-divider.app-grid-stack>.app-grid-margin {
+        margin-top: 80px;
+    }
+
+    .app-grid-divider.app-grid-stack>.app-grid-margin::before {
+        top: -40px;
+        left: 80px;
+    }
+}
+
+/*
+   * Small
+   */
+/* Horizontal */
+.app-grid-divider.app-grid-small,
+.app-grid-divider.app-grid-column-small {
+    margin-left: -30px;
+}
+
+.app-grid-divider.app-grid-small>*,
+.app-grid-divider.app-grid-column-small>* {
+    padding-left: 30px;
+}
+
+.app-grid-divider.app-grid-small> :not(.app-first-column)::before,
+.app-grid-divider.app-grid-column-small> :not(.app-first-column)::before {
+    left: 15px;
+}
+
+/* Vertical */
+.app-grid-divider.app-grid-small.app-grid-stack>.app-grid-margin,
+.app-grid-divider.app-grid-row-small.app-grid-stack>.app-grid-margin {
+    margin-top: 30px;
+}
+
+.app-grid-divider.app-grid-small.app-grid-stack>.app-grid-margin::before {
+    top: -15px;
+    left: 30px;
+}
+
+.app-grid-divider.app-grid-row-small.app-grid-stack>.app-grid-margin::before {
+    top: -15px;
+}
+
+.app-grid-divider.app-grid-column-small.app-grid-stack>.app-grid-margin::before {
+    left: 30px;
+}
+
+/*
+   * Medium
+   */
+/* Horizontal */
+.app-grid-divider.app-grid-medium,
+.app-grid-divider.app-grid-column-medium {
+    margin-left: -60px;
+}
+
+.app-grid-divider.app-grid-medium>*,
+.app-grid-divider.app-grid-column-medium>* {
+    padding-left: 60px;
+}
+
+.app-grid-divider.app-grid-medium> :not(.app-first-column)::before,
+.app-grid-divider.app-grid-column-medium> :not(.app-first-column)::before {
+    left: 30px;
+}
+
+/* Vertical */
+.app-grid-divider.app-grid-medium.app-grid-stack>.app-grid-margin,
+.app-grid-divider.app-grid-row-medium.app-grid-stack>.app-grid-margin {
+    margin-top: 60px;
+}
+
+.app-grid-divider.app-grid-medium.app-grid-stack>.app-grid-margin::before {
+    top: -30px;
+    left: 60px;
+}
+
+.app-grid-divider.app-grid-row-medium.app-grid-stack>.app-grid-margin::before {
+    top: -30px;
+}
+
+.app-grid-divider.app-grid-column-medium.app-grid-stack>.app-grid-margin::before {
+    left: 60px;
+}
+
+/*
+   * Large
+   */
+/* Horizontal */
+.app-grid-divider.app-grid-large,
+.app-grid-divider.app-grid-column-large {
+    margin-left: -80px;
+}
+
+.app-grid-divider.app-grid-large>*,
+.app-grid-divider.app-grid-column-large>* {
+    padding-left: 80px;
+}
+
+.app-grid-divider.app-grid-large> :not(.app-first-column)::before,
+.app-grid-divider.app-grid-column-large> :not(.app-first-column)::before {
+    left: 40px;
+}
+
+/* Vertical */
+.app-grid-divider.app-grid-large.app-grid-stack>.app-grid-margin,
+.app-grid-divider.app-grid-row-large.app-grid-stack>.app-grid-margin {
+    margin-top: 80px;
+}
+
+.app-grid-divider.app-grid-large.app-grid-stack>.app-grid-margin::before {
+    top: -40px;
+    left: 80px;
+}
+
+.app-grid-divider.app-grid-row-large.app-grid-stack>.app-grid-margin::before {
+    top: -40px;
+}
+
+.app-grid-divider.app-grid-column-large.app-grid-stack>.app-grid-margin::before {
+    left: 80px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+
+    /* Horizontal */
+    .app-grid-divider.app-grid-large,
+    .app-grid-divider.app-grid-column-large {
+        margin-left: -140px;
+    }
+
+    .app-grid-divider.app-grid-large>*,
+    .app-grid-divider.app-grid-column-large>* {
+        padding-left: 140px;
+    }
+
+    .app-grid-divider.app-grid-large> :not(.app-first-column)::before,
+    .app-grid-divider.app-grid-column-large> :not(.app-first-column)::before {
+        left: 70px;
+    }
+
+    /* Vertical */
+    .app-grid-divider.app-grid-large.app-grid-stack>.app-grid-margin,
+    .app-grid-divider.app-grid-row-large.app-grid-stack>.app-grid-margin {
+        margin-top: 140px;
+    }
+
+    .app-grid-divider.app-grid-large.app-grid-stack>.app-grid-margin::before {
+        top: -70px;
+        left: 140px;
+    }
+
+    .app-grid-divider.app-grid-row-large.app-grid-stack>.app-grid-margin::before {
+        top: -70px;
+    }
+
+    .app-grid-divider.app-grid-column-large.app-grid-stack>.app-grid-margin::before {
+        left: 140px;
+    }
+}
+
+/* Match child of a grid cell
+   ========================================================================== */
+/*
+   * Behave like a block element
+   * 1. Wrap into the next line
+   * 2. Take the full width, at least 100%. Only if no class from the Width component is set.
+   * 3. Expand width even if larger than 100%, e.g. because of negative margin (Needed for nested grids)
+   */
+.app-grid-match>*,
+.app-grid-item-match {
+    display: flex;
+    /* 1 */
+    flex-wrap: wrap;
+}
+
+.app-grid-match>*> :not([class*='app-width']),
+.app-grid-item-match> :not([class*='app-width']) {
+    /* 2 */
+    box-sizing: border-box;
+    width: 100%;
+    /* 3 */
+    flex: auto;
+}
+
+/* Dropbar
+   ========================================================================== */
+/*
+   * Adopts `app-dropnav-dropbar`
+   */
+/* ========================================================================
+     Component: Width
+   ========================================================================== */
+/* Equal child widths
+   ========================================================================== */
+[class*='app-child-width']>* {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.app-child-width-1-2>* {
+    width: 50%;
+}
+
+.app-child-width-1-3>* {
+    width: calc(100% * 1 / 3.001);
+}
+
+.app-child-width-1-4>* {
+    width: 25%;
+}
+
+.app-child-width-1-5>* {
+    width: 20%;
+}
+
+.app-child-width-1-6>* {
+    width: calc(100% * 1 / 6.001);
+}
+
+.app-child-width-auto>* {
+    width: auto;
+}
+
+/*
+   * 1. Reset the `min-width`, which is set to auto by default, because
+   *    flex items won't shrink below their minimum intrinsic content size.
+   *    Using `1px` instead of `0`, so items still wrap into the next line,
+   *    if they have zero width and padding and the predecessor is 100% wide.
+   */
+.app-child-width-expand> :not([class*='app-width']) {
+    flex: 1;
+    /* 1 */
+    min-width: 1px;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-child-width-1-1\@s>* {
+        width: 100%;
+    }
+
+    .app-child-width-1-2\@s>* {
+        width: 50%;
+    }
+
+    .app-child-width-1-3\@s>* {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-child-width-1-4\@s>* {
+        width: 25%;
+    }
+
+    .app-child-width-1-5\@s>* {
+        width: 20%;
+    }
+
+    .app-child-width-1-6\@s>* {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-child-width-auto\@s>* {
+        width: auto;
+    }
+
+    .app-child-width-expand\@s> :not([class*='app-width']) {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-child-width-1-1\@m>* {
+        width: 100%;
+    }
+
+    .app-child-width-1-2\@m>* {
+        width: 50%;
+    }
+
+    .app-child-width-1-3\@m>* {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-child-width-1-4\@m>* {
+        width: 25%;
+    }
+
+    .app-child-width-1-5\@m>* {
+        width: 20%;
+    }
+
+    .app-child-width-1-6\@m>* {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-child-width-auto\@m>* {
+        width: auto;
+    }
+
+    .app-child-width-expand\@m> :not([class*='app-width']) {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-child-width-1-1\@l>* {
+        width: 100%;
+    }
+
+    .app-child-width-1-2\@l>* {
+        width: 50%;
+    }
+
+    .app-child-width-1-3\@l>* {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-child-width-1-4\@l>* {
+        width: 25%;
+    }
+
+    .app-child-width-1-5\@l>* {
+        width: 20%;
+    }
+
+    .app-child-width-1-6\@l>* {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-child-width-auto\@l>* {
+        width: auto;
+    }
+
+    .app-child-width-expand\@l> :not([class*='app-width']) {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+    .app-child-width-1-1\@xl>* {
+        width: 100%;
+    }
+
+    .app-child-width-1-2\@xl>* {
+        width: 50%;
+    }
+
+    .app-child-width-1-3\@xl>* {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-child-width-1-4\@xl>* {
+        width: 25%;
+    }
+
+    .app-child-width-1-5\@xl>* {
+        width: 20%;
+    }
+
+    .app-child-width-1-6\@xl>* {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-child-width-auto\@xl>* {
+        width: auto;
+    }
+
+    .app-child-width-expand\@xl> :not([class*='app-width']) {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Single Widths
+   ========================================================================== */
+/*
+   * 1. `max-width` is needed for the pixel-based classes
+   */
+[class*='app-width'] {
+    box-sizing: border-box;
+    width: 100%;
+    /* 1 */
+    max-width: 100%;
+}
+
+/* Halves */
+.app-width-1-2 {
+    width: 50%;
+}
+
+/* Thirds */
+.app-width-1-3 {
+    width: calc(100% * 1 / 3.001);
+}
+
+.app-width-2-3 {
+    width: calc(100% * 2 / 3.001);
+}
+
+/* Quarters */
+.app-width-1-4 {
+    width: 25%;
+}
+
+.app-width-3-4 {
+    width: 75%;
+}
+
+/* Fifths */
+.app-width-1-5 {
+    width: 20%;
+}
+
+.app-width-2-5 {
+    width: 40%;
+}
+
+.app-width-3-5 {
+    width: 60%;
+}
+
+.app-width-4-5 {
+    width: 80%;
+}
+
+/* Sixths */
+.app-width-1-6 {
+    width: calc(100% * 1 / 6.001);
+}
+
+.app-width-5-6 {
+    width: calc(100% * 5 / 6.001);
+}
+
+/* Pixel */
+.app-width-small {
+    width: 150px;
+}
+
+.app-width-medium {
+    width: 300px;
+}
+
+.app-width-large {
+    width: 450px;
+}
+
+.app-width-xlarge {
+    width: 600px;
+}
+
+.app-width-2xlarge {
+    width: 750px;
+}
+
+/* Auto */
+.app-width-auto {
+    width: auto;
+}
+
+/* Expand */
+.app-width-expand {
+    flex: 1;
+    min-width: 1px;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+
+    /* Whole */
+    .app-width-1-1\@s {
+        width: 100%;
+    }
+
+    /* Halves */
+    .app-width-1-2\@s {
+        width: 50%;
+    }
+
+    /* Thirds */
+    .app-width-1-3\@s {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-width-2-3\@s {
+        width: calc(100% * 2 / 3.001);
+    }
+
+    /* Quarters */
+    .app-width-1-4\@s {
+        width: 25%;
+    }
+
+    .app-width-3-4\@s {
+        width: 75%;
+    }
+
+    /* Fifths */
+    .app-width-1-5\@s {
+        width: 20%;
+    }
+
+    .app-width-2-5\@s {
+        width: 40%;
+    }
+
+    .app-width-3-5\@s {
+        width: 60%;
+    }
+
+    .app-width-4-5\@s {
+        width: 80%;
+    }
+
+    /* Sixths */
+    .app-width-1-6\@s {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-width-5-6\@s {
+        width: calc(100% * 5 / 6.001);
+    }
+
+    /* Pixel */
+    .app-width-small\@s {
+        width: 150px;
+    }
+
+    .app-width-medium\@s {
+        width: 300px;
+    }
+
+    .app-width-large\@s {
+        width: 450px;
+    }
+
+    .app-width-xlarge\@s {
+        width: 600px;
+    }
+
+    .app-width-2xlarge\@s {
+        width: 750px;
+    }
+
+    /* Auto */
+    .app-width-auto\@s {
+        width: auto;
+    }
+
+    /* Expand */
+    .app-width-expand\@s {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+
+    /* Whole */
+    .app-width-1-1\@m {
+        width: 100%;
+    }
+
+    /* Halves */
+    .app-width-1-2\@m {
+        width: 50%;
+    }
+
+    /* Thirds */
+    .app-width-1-3\@m {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-width-2-3\@m {
+        width: calc(100% * 2 / 3.001);
+    }
+
+    /* Quarters */
+    .app-width-1-4\@m {
+        width: 25%;
+    }
+
+    .app-width-3-4\@m {
+        width: 75%;
+    }
+
+    /* Fifths */
+    .app-width-1-5\@m {
+        width: 20%;
+    }
+
+    .app-width-2-5\@m {
+        width: 40%;
+    }
+
+    .app-width-3-5\@m {
+        width: 60%;
+    }
+
+    .app-width-4-5\@m {
+        width: 80%;
+    }
+
+    /* Sixths */
+    .app-width-1-6\@m {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-width-5-6\@m {
+        width: calc(100% * 5 / 6.001);
+    }
+
+    /* Pixel */
+    .app-width-small\@m {
+        width: 150px;
+    }
+
+    .app-width-medium\@m {
+        width: 300px;
+    }
+
+    .app-width-large\@m {
+        width: 450px;
+    }
+
+    .app-width-xlarge\@m {
+        width: 600px;
+    }
+
+    .app-width-2xlarge\@m {
+        width: 750px;
+    }
+
+    /* Auto */
+    .app-width-auto\@m {
+        width: auto;
+    }
+
+    /* Expand */
+    .app-width-expand\@m {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+
+    /* Whole */
+    .app-width-1-1\@l {
+        width: 100%;
+    }
+
+    /* Halves */
+    .app-width-1-2\@l {
+        width: 50%;
+    }
+
+    /* Thirds */
+    .app-width-1-3\@l {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-width-2-3\@l {
+        width: calc(100% * 2 / 3.001);
+    }
+
+    /* Quarters */
+    .app-width-1-4\@l {
+        width: 25%;
+    }
+
+    .app-width-3-4\@l {
+        width: 75%;
+    }
+
+    /* Fifths */
+    .app-width-1-5\@l {
+        width: 20%;
+    }
+
+    .app-width-2-5\@l {
+        width: 40%;
+    }
+
+    .app-width-3-5\@l {
+        width: 60%;
+    }
+
+    .app-width-4-5\@l {
+        width: 80%;
+    }
+
+    /* Sixths */
+    .app-width-1-6\@l {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-width-5-6\@l {
+        width: calc(100% * 5 / 6.001);
+    }
+
+    /* Pixel */
+    .app-width-small\@l {
+        width: 150px;
+    }
+
+    .app-width-medium\@l {
+        width: 300px;
+    }
+
+    .app-width-large\@l {
+        width: 450px;
+    }
+
+    .app-width-xlarge\@l {
+        width: 600px;
+    }
+
+    .app-width-2xlarge\@l {
+        width: 750px;
+    }
+
+    /* Auto */
+    .app-width-auto\@l {
+        width: auto;
+    }
+
+    /* Expand */
+    .app-width-expand\@l {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+
+    /* Whole */
+    .app-width-1-1\@xl {
+        width: 100%;
+    }
+
+    /* Halves */
+    .app-width-1-2\@xl {
+        width: 50%;
+    }
+
+    /* Thirds */
+    .app-width-1-3\@xl {
+        width: calc(100% * 1 / 3.001);
+    }
+
+    .app-width-2-3\@xl {
+        width: calc(100% * 2 / 3.001);
+    }
+
+    /* Quarters */
+    .app-width-1-4\@xl {
+        width: 25%;
+    }
+
+    .app-width-3-4\@xl {
+        width: 75%;
+    }
+
+    /* Fifths */
+    .app-width-1-5\@xl {
+        width: 20%;
+    }
+
+    .app-width-2-5\@xl {
+        width: 40%;
+    }
+
+    .app-width-3-5\@xl {
+        width: 60%;
+    }
+
+    .app-width-4-5\@xl {
+        width: 80%;
+    }
+
+    /* Sixths */
+    .app-width-1-6\@xl {
+        width: calc(100% * 1 / 6.001);
+    }
+
+    .app-width-5-6\@xl {
+        width: calc(100% * 5 / 6.001);
+    }
+
+    /* Pixel */
+    .app-width-small\@xl {
+        width: 150px;
+    }
+
+    .app-width-medium\@xl {
+        width: 300px;
+    }
+
+    .app-width-large\@xl {
+        width: 450px;
+    }
+
+    .app-width-xlarge\@xl {
+        width: 600px;
+    }
+
+    .app-width-2xlarge\@xl {
+        width: 750px;
+    }
+
+    /* Auto */
+    .app-width-auto\@xl {
+        width: auto;
+    }
+
+    /* Expand */
+    .app-width-expand\@xl {
+        flex: 1;
+        min-width: 1px;
+    }
+}
+
+/* Intrinsic Widths
+   ========================================================================== */
+.app-width-max-content {
+    width: max-content;
+}
+
+.app-width-min-content {
+    width: min-content;
+}
+
+/* ========================================================================
+     Component: Text
+   ========================================================================== */
+/* Style modifiers
+   ========================================================================== */
+.app-text-lead {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.app-text-meta {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #999;
+}
+
+/* Size modifiers
+   ========================================================================== */
+.app-text-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.app-text-large {
+    font-size: 1.5rem;
+    line-height: 1.5;
+}
+
+.app-text-default {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Weight modifier
+   ========================================================================== */
+.app-text-light {
+    font-weight: 300;
+}
+
+.app-text-normal {
+    font-weight: 400;
+}
+
+.app-text-bold {
+    font-weight: 700;
+}
+
+.app-text-lighter {
+    font-weight: lighter;
+}
+
+.app-text-bolder {
+    font-weight: bolder;
+}
+
+/* Style modifier
+   ========================================================================== */
+.app-text-italic {
+    font-style: italic;
+}
+
+/* Transform modifier
+   ========================================================================== */
+.app-text-capitalize {
+    text-transform: capitalize !important;
+}
+
+.app-text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.app-text-lowercase {
+    text-transform: lowercase !important;
+}
+
+/* Decoration modifier
+   ========================================================================== */
+.app-text-decoration-none {
+    text-decoration: none !important;
+}
+
+/* Color modifiers
+   ========================================================================== */
+.app-text-muted {
+    color: #999 !important;
+}
+
+.app-text-emphasis {
+    color: #333 !important;
+}
+
+.app-text-primary {
+    color: #1e87f0 !important;
+}
+
+.app-text-secondary {
+    color: #222 !important;
+}
+
+.app-text-success {
+    color: #32d296 !important;
+}
+
+.app-text-warning {
+    color: #faa05a !important;
+}
+
+.app-text-danger {
+    color: #f0506e !important;
+}
+
+/* Background modifier
+   ========================================================================== */
+/*
+   * 1. The background clips to the foreground text. Works in all browsers.
+   * 2. Default color is set to transparent.
+   * 3. Container fits the text
+   * 4. Style
+   */
+.app-text-background {
+    /* 1 */
+    -webkit-background-clip: text;
+    /* 2 */
+    color: transparent !important;
+    /* 3 */
+    display: inline-block;
+    /* 4 */
+    background-color: #1e87f0;
+}
+
+/* Alignment modifiers
+   ========================================================================== */
+.app-text-left {
+    text-align: left !important;
+}
+
+.app-text-right {
+    text-align: right !important;
+}
+
+.app-text-center {
+    text-align: center !important;
+}
+
+.app-text-justify {
+    text-align: justify !important;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-text-left\@s {
+        text-align: left !important;
+    }
+
+    .app-text-right\@s {
+        text-align: right !important;
+    }
+
+    .app-text-center\@s {
+        text-align: center !important;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-text-left\@m {
+        text-align: left !important;
+    }
+
+    .app-text-right\@m {
+        text-align: right !important;
+    }
+
+    .app-text-center\@m {
+        text-align: center !important;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-text-left\@l {
+        text-align: left !important;
+    }
+
+    .app-text-right\@l {
+        text-align: right !important;
+    }
+
+    .app-text-center\@l {
+        text-align: center !important;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+    .app-text-left\@xl {
+        text-align: left !important;
+    }
+
+    .app-text-right\@xl {
+        text-align: right !important;
+    }
+
+    .app-text-center\@xl {
+        text-align: center !important;
+    }
+}
+
+/*
+   * Vertical
+   */
+.app-text-top {
+    vertical-align: top !important;
+}
+
+.app-text-middle {
+    vertical-align: middle !important;
+}
+
+.app-text-bottom {
+    vertical-align: bottom !important;
+}
+
+.app-text-baseline {
+    vertical-align: baseline !important;
+}
+
+/* Wrap modifiers
+   ========================================================================== */
+/*
+   * Prevent text from wrapping onto multiple lines
+   */
+.app-text-nowrap {
+    white-space: nowrap;
+}
+
+/*
+   * 1. Make sure a max-width is set after which truncation can occur
+   * 2. Prevent text from wrapping onto multiple lines, and truncate with an ellipsis
+   * 3. Fix for table cells
+   */
+.app-text-truncate {
+    /* 1 */
+    max-width: 100%;
+    /* 2 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 2 */
+th.app-text-truncate,
+td.app-text-truncate {
+    max-width: 0;
+}
+
+/*
+   * Wrap long words onto the next line and break them if they are too long to fit.
+   * 1. Make it work with table cells in all browsers.
+   * Note: Not using `hyphens: auto` because it hyphenates text even if not needed.
+   */
+.app-text-break {
+    overflow-wrap: break-word;
+}
+
+/* 1 */
+th.app-text-break,
+td.app-text-break {
+    word-break: break-word;
+}
+
+/* ========================================================================
+     Component: Margin
+   ========================================================================== */
+/*
+   * Default
+   */
+.app-margin {
+    margin-bottom: 20px;
+}
+
+*+.app-margin {
+    margin-top: 20px !important;
+}
+
+.app-margin-top {
+    margin-top: 20px !important;
+}
+
+.app-margin-bottom {
+    margin-bottom: 20px !important;
+}
+
+.app-margin-left {
+    margin-left: 20px !important;
+}
+
+.app-margin-right {
+    margin-right: 20px !important;
+}
+
+/* Small
+   ========================================================================== */
+.app-margin-small {
+    margin-bottom: 10px;
+}
+
+*+.app-margin-small {
+    margin-top: 10px !important;
+}
+
+.app-margin-small-top {
+    margin-top: 10px !important;
+}
+
+.app-margin-small-bottom {
+    margin-bottom: 10px !important;
+}
+
+.app-margin-small-left {
+    margin-left: 10px !important;
+}
+
+.app-margin-small-right {
+    margin-right: 10px !important;
+}
+
+/* Medium
+   ========================================================================== */
+.app-margin-medium {
+    margin-bottom: 40px;
+}
+
+*+.app-margin-medium {
+    margin-top: 40px !important;
+}
+
+.app-margin-medium-top {
+    margin-top: 40px !important;
+}
+
+.app-margin-medium-bottom {
+    margin-bottom: 40px !important;
+}
+
+.app-margin-medium-left {
+    margin-left: 40px !important;
+}
+
+.app-margin-medium-right {
+    margin-right: 40px !important;
+}
+
+/* Large
+   ========================================================================== */
+.app-margin-large {
+    margin-bottom: 40px;
+}
+
+*+.app-margin-large {
+    margin-top: 40px !important;
+}
+
+.app-margin-large-top {
+    margin-top: 40px !important;
+}
+
+.app-margin-large-bottom {
+    margin-bottom: 40px !important;
+}
+
+.app-margin-large-left {
+    margin-left: 40px !important;
+}
+
+.app-margin-large-right {
+    margin-right: 40px !important;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-margin-large {
+        margin-bottom: 70px;
+    }
+
+    *+.app-margin-large {
+        margin-top: 70px !important;
+    }
+
+    .app-margin-large-top {
+        margin-top: 70px !important;
+    }
+
+    .app-margin-large-bottom {
+        margin-bottom: 70px !important;
+    }
+
+    .app-margin-large-left {
+        margin-left: 70px !important;
+    }
+
+    .app-margin-large-right {
+        margin-right: 70px !important;
+    }
+}
+
+/* XLarge
+   ========================================================================== */
+.app-margin-xlarge {
+    margin-bottom: 70px;
+}
+
+*+.app-margin-xlarge {
+    margin-top: 70px !important;
+}
+
+.app-margin-xlarge-top {
+    margin-top: 70px !important;
+}
+
+.app-margin-xlarge-bottom {
+    margin-bottom: 70px !important;
+}
+
+.app-margin-xlarge-left {
+    margin-left: 70px !important;
+}
+
+.app-margin-xlarge-right {
+    margin-right: 70px !important;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-margin-xlarge {
+        margin-bottom: 140px;
+    }
+
+    *+.app-margin-xlarge {
+        margin-top: 140px !important;
+    }
+
+    .app-margin-xlarge-top {
+        margin-top: 140px !important;
+    }
+
+    .app-margin-xlarge-bottom {
+        margin-bottom: 140px !important;
+    }
+
+    .app-margin-xlarge-left {
+        margin-left: 140px !important;
+    }
+
+    .app-margin-xlarge-right {
+        margin-right: 140px !important;
+    }
+}
+
+/* Auto
+   ========================================================================== */
+.app-margin-auto {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.app-margin-auto-top {
+    margin-top: auto !important;
+}
+
+.app-margin-auto-bottom {
+    margin-bottom: auto !important;
+}
+
+.app-margin-auto-left {
+    margin-left: auto !important;
+}
+
+.app-margin-auto-right {
+    margin-right: auto !important;
+}
+
+.app-margin-auto-vertical {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-margin-auto\@s {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .app-margin-auto-left\@s {
+        margin-left: auto !important;
+    }
+
+    .app-margin-auto-right\@s {
+        margin-right: auto !important;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-margin-auto\@m {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .app-margin-auto-left\@m {
+        margin-left: auto !important;
+    }
+
+    .app-margin-auto-right\@m {
+        margin-right: auto !important;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-margin-auto\@l {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .app-margin-auto-left\@l {
+        margin-left: auto !important;
+    }
+
+    .app-margin-auto-right\@l {
+        margin-right: auto !important;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+    .app-margin-auto\@xl {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .app-margin-auto-left\@xl {
+        margin-left: auto !important;
+    }
+
+    .app-margin-auto-right\@xl {
+        margin-right: auto !important;
+    }
+}
+
+/* Remove
+   ========================================================================== */
+.app-margin-remove {
+    margin: 0 !important;
+}
+
+.app-margin-remove-top {
+    margin-top: 0 !important;
+}
+
+.app-margin-remove-bottom {
+    margin-bottom: 0 !important;
+}
+
+.app-margin-remove-left {
+    margin-left: 0 !important;
+}
+
+.app-margin-remove-right {
+    margin-right: 0 !important;
+}
+
+.app-margin-remove-vertical {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.app-margin-remove-adjacent+*,
+.app-margin-remove-first-child> :first-child {
+    margin-top: 0 !important;
+}
+
+.app-margin-remove-last-child> :last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-margin-remove-left\@s {
+        margin-left: 0 !important;
+    }
+
+    .app-margin-remove-right\@s {
+        margin-right: 0 !important;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-margin-remove-left\@m {
+        margin-left: 0 !important;
+    }
+
+    .app-margin-remove-right\@m {
+        margin-right: 0 !important;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-margin-remove-left\@l {
+        margin-left: 0 !important;
+    }
+
+    .app-margin-remove-right\@l {
+        margin-right: 0 !important;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+    .app-margin-remove-left\@xl {
+        margin-left: 0 !important;
+    }
+
+    .app-margin-remove-right\@xl {
+        margin-right: 0 !important;
+    }
+}
+
+/* ========================================================================
+     Component: Padding
+   ========================================================================== */
+.app-padding {
+    padding: 30px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-padding {
+        padding: 40px;
+    }
+}
+
+/* Small
+   ========================================================================== */
+.app-padding-small {
+    padding: 15px;
+}
+
+/* Large
+   ========================================================================== */
+.app-padding-large {
+    padding: 40px;
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-padding-large {
+        padding: 70px;
+    }
+}
+
+/* Remove
+   ========================================================================== */
+.app-padding-remove {
+    padding: 0 !important;
+}
+
+.app-padding-remove-top {
+    padding-top: 0 !important;
+}
+
+.app-padding-remove-bottom {
+    padding-bottom: 0 !important;
+}
+
+.app-padding-remove-left {
+    padding-left: 0 !important;
+}
+
+.app-padding-remove-right {
+    padding-right: 0 !important;
+}
+
+.app-padding-remove-vertical {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.app-padding-remove-horizontal {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* ========================================================================
+     Component: Visibility
+   ========================================================================== */
+/*
+   * Hidden
+   * `hidden` attribute also set here to make it stronger
+   */
+[hidden],
+.app-hidden {
+    display: none !important;
+}
+
+/* Phone landscape and bigger */
+@media (min-width: 640px) {
+    .app-hidden\@s {
+        display: none !important;
+    }
+}
+
+/* Tablet landscape and bigger */
+@media (min-width: 960px) {
+    .app-hidden\@m {
+        display: none !important;
+    }
+}
+
+/* Desktop and bigger */
+@media (min-width: 1200px) {
+    .app-hidden\@l {
+        display: none !important;
+    }
+}
+
+/* Large screen and bigger */
+@media (min-width: 1600px) {
+    .app-hidden\@xl {
+        display: none !important;
+    }
+}
+
+/*
+   * Visible
+   */
+/* Phone portrait and smaller */
+@media (max-width: 639px) {
+    .app-visible\@s {
+        display: none !important;
+    }
+}
+
+/* Phone landscape and smaller */
+@media (max-width: 959px) {
+    .app-visible\@m {
+        display: none !important;
+    }
+}
+
+/* Tablet landscape and smaller */
+@media (max-width: 1199px) {
+    .app-visible\@l {
+        display: none !important;
+    }
+}
+
+/* Desktop and smaller */
+@media (max-width: 1599px) {
+    .app-visible\@xl {
+        display: none !important;
+    }
+}
+
+/* Visibility
+   ========================================================================== */
+.app-invisible {
+    visibility: hidden !important;
+}
+
+/* Based on the State of the Parent Element
+   ========================================================================== */
+/*
+   * Mind that `display: none`, `visibility: hidden` and `opacity: 0`
+   * remove the element from the accessibility tree and that
+   * `display: none` and `visibility: hidden` are not focusable.
+   *
+   * The target stays visible if any element within receives focus through keyboard.
+   */
+/*
+   * Remove space when hidden.
+   * 1. Remove from document flow.
+   * 2. Hide element and shrink its dimension. Can't use zero dimensions together
+   *    with `overflow: hidden` it would remove it from the accessibility tree.
+   * 3. Hide the single rendered pixel.
+   * 4. Prevent text wrapping caused by `width: 1px` because it has side effects on vocalisation
+   *    by screen readers and the visual tracking indicator of other assistive technologies.
+   */
+.app-hidden-visually:not(:focus):not(:active):not(:focus-within),
+.app-visible-toggle:not(:hover):not(:focus) .app-hidden-hover:not(:focus-within) {
+    /* 1 */
+    position: absolute !important;
+    /* 2 */
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    /* 3 */
+    clip-path: inset(50%) !important;
+    /* 4 */
+    white-space: nowrap !important;
+}
+
+/*
+   * Keep space when hidden.
+   * Hide element without shrinking its dimension.
+   * Unfortunately, can't use `clip-path: inset(50%)` because hover won't work
+   * if the element is positioned outside of the toggle box.
+   */
+.app-visible-toggle:not(:hover):not(:focus) .app-invisible-hover:not(:focus-within) {
+    opacity: 0 !important;
+}
+
+/* Based on Hover Capability of the Pointing Device
+   ========================================================================== */
+/*
+   * Hover
+   */
+/* Hide if primary pointing device doesn't support hover, e.g. touch screens. */
+@media (hover: none) {
+    .app-hidden-touch {
+        display: none !important;
+    }
+}
+
+/* Hide if primary pointing device supports hover, e.g. mice. */
+@media (hover) {
+    .app-hidden-notouch {
+        display: none !important;
+    }
+}

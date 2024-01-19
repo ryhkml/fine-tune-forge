@@ -1,0 +1,40 @@
+version: "3.9"
+secrets:
+  env:
+    file: .env
+services:
+  webapp:
+    container_name: fine-tune-forge
+    hostname: fine-tune-forge
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    secrets:
+      - env
+    build:
+      context: .
+      no_cache: true
+      dockerfile: Dockerfile
+    ports:
+      - 12400:12400
+    volumes:
+      - dataset:/app/DATASET
+      - datatmp:/app/DATATMP
+    networks:
+      - net
+    environment:
+      PATH_ENV_VAR: /run/secrets/env
+      # PROTOCOL_SERVER: https
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 64M
+networks:
+  net:
+volumes:
+  dataset:
+  datatmp:
