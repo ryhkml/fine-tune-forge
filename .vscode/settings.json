@@ -16,5 +16,15 @@
     },
     "[json]": {
         "editor.tabSize": 4
+    },
+    "editor.fontLigatures": true,
+    "editor.letterSpacing": 0.4,
+    "editor.lineHeight": 1.6,
+    "editor.smoothScrolling": true,
+    "angular-schematics.schematicsDefaultOptions": {
+        "angular-*": {
+            "style": "scss",
+            "externalTemplate": true
+        }
     }
 }
