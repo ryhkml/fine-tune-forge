@@ -1,6 +1,7 @@
 import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, RendererStyleFlags2, TemplateRef, ViewChild, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { NzAlertModule } from "ng-zorro-antd/alert";
 import { NzButtonModule } from "ng-zorro-antd/button";
@@ -15,8 +16,8 @@ import { NzSpaceModule } from "ng-zorro-antd/space";
 import { NzSpinModule } from "ng-zorro-antd/spin";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
-import { BehaviorSubject, Subscription, debounceTime, distinctUntilChanged, exhaustMap, filter, map, noop } from "rxjs";
-import { defer as deferLD } from "lodash";
+import { BehaviorSubject, Subscription, debounceTime, distinctUntilChanged, filter, map, noop, switchMap } from "rxjs";
+import { defer as deferLD, toUpper, trim } from "lodash";
 
 import { HomeService } from "./home.service";
 
@@ -30,6 +31,7 @@ import { TruncatePipe } from "../shared/truncate.pipe";
     ],
     imports: [
         NgClass,
+        RouterModule,
         ReactiveFormsModule,
         // Styles
         NzAlertModule,
@@ -134,6 +136,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     #removeNewLinesSubscription: Subscription | null = null;
 
     readonly #renderer2 = inject(Renderer2);
+    readonly #route = inject(ActivatedRoute);
     readonly #host = inject(ElementRef<HTMLElement>);
     readonly #nzNotificationService = inject(NzNotificationService);
     readonly #nzModalService = inject(NzModalService);
@@ -153,27 +156,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         // 
         this.addCustomValidators();
         // 
-        this.#homeService.getDataset().pipe(
-            map(v => v.sort((a, b) => a.localeCompare(b)))
-        )
-        .subscribe({
-            next: v => this.listDataset = v
-        });
+        this.listDataset = this.#route.snapshot.data["home"]["datasets"];
         // 
-        this.#homeService.existsInstructionState().subscribe({
-            next: v => {
-                if (v) {
-                    this.#instruction.patchValue(v, { emitEvent: false });
-                    this.#instruction.markAllAsTouched();
-                    this.#instructionSave.patchValue(true, { emitEvent: false });
-                    this.#instructionSave.markAllAsTouched();
-                }
-            }
-        });
+        this.initInstructionState();
         // 
         this.#instructionSaveSubscription = this.#instructionSave.valueChanges.pipe(
             distinctUntilChanged(),
-            exhaustMap(v => {
+            switchMap(v => {
                 if (v) {
                     return this.#homeService.saveInstructionState(this.#instruction.value || "").pipe(
                         map(() => v)
@@ -199,9 +188,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
         // 
         this.#instructionSubscription = this.#instruction.valueChanges.pipe(
-            filter(() => !!this.#instructionSave.value),
+            filter(() => !!this.#instructionSave.value && this.#instruction.valid),
             debounceTime(100),
-            exhaustMap(v => this.#homeService.saveInstructionState(v).pipe(
+            switchMap(v => this.#homeService.saveInstructionState(v).pipe(
                 map(() => null)
             ))
         )
@@ -492,5 +481,32 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
             return null;
         });
+        // 
+        this.#instruction.addValidators(control => {
+            const value = trim(control.value);
+            if (toUpper(value) == "EMPTY" || toUpper(value) == "UNAVAILABLE") {
+                return { err: true };
+            }
+            return null;
+        });
+    }
+
+    private initInstructionState() {
+        const instruction = this.#route.snapshot.data["home"]["instruction"] as string;
+        switch(instruction) {
+            case "EMPTY":
+                this.#instructionSave.patchValue(true, { emitEvent: false });
+                this.#instructionSave.markAllAsTouched();
+                break;
+            case "UNAVAILABLE":
+                noop();
+                break;
+            default:
+                this.#instruction.patchValue(instruction, { emitEvent: false });
+                this.#instruction.markAllAsTouched();
+                this.#instructionSave.patchValue(true, { emitEvent: false });
+                this.#instructionSave.markAllAsTouched();
+                break;
+        }
     }
 }

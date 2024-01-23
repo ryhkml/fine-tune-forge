@@ -26,5 +26,21 @@
             "style": "scss",
             "externalTemplate": true
         }
+    },
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    "comment",
+                    "comment.line",
+                    "comment.block",
+                    "comment.block.documentation",
+                    "punctuation.definition.comment"
+                ],
+                "settings": {
+                    "fontStyle": ""
+                }
+            }
+        ]
     }
 }

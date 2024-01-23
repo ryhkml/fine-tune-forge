@@ -21,6 +21,8 @@
                     <div class="app-margin">
                         <div class="app-margin-xsmall-bottom">
                             <b nz-typography>Name</b>
+                            <br>
+                            <span nz-typography [nzType]="'secondary'">Input the same name to add the dataset</span>
                         </div>
                         <input nz-input [formControlName]="'name'" placeholder="Math tutor" type="text" spellcheck="true" autocomplete="off" minlength="3" maxlength="64" required>
                     </div>
@@ -75,7 +77,7 @@
                                         </button>
                                     </span>
                                     <span *nzSpaceItem nz-typography>
-                                        <b>{{ dataset }}</b>
+                                        <a [routerLink]="['storage', 'dataset', dataset]">{{ dataset }}</a>
                                     </span>
                                 </nz-space>
                             </li>
@@ -121,7 +123,7 @@
                                 <p nz-typography class="app-margin-remove">Supports .gif, .jpg, .jpeg, .png, or .webp (15 pages, 19MB each)</p>
                             </div>
                         </div>
-                        <div class="app-margin">
+                        <div class="app-margin-small-bottom">
                             <div class="app-margin-xsmall-bottom">
                                 <div>
                                     <label nz-checkbox [formControlName]="'removeNewLines'" [nzDisabled]="imageOCRStatus != 'DONE'">

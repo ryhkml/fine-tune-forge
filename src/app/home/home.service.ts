@@ -14,9 +14,9 @@ export class HomeService {
     readonly #document = inject(DOCUMENT);
     readonly #http = inject(HttpClient);
 
-    getDataset() {
+    getAllDataset() {
         return this.#http.get<{ payload: Array<string> }>("/dataset").pipe(
-            map(v => v.payload.map(v => v.replace(".jsonl", ""))),
+            map(v => v.payload),
             take(1)
         );
     }
@@ -26,7 +26,7 @@ export class HomeService {
             this.#http.post<never>("/add/dataset", payload).pipe(
                 switchMap(() => EMPTY)
             ),
-            this.getDataset()
+            this.getAllDataset()
         )
         .pipe(
             take(1)
@@ -34,7 +34,7 @@ export class HomeService {
     }
 
     downloadDataset(name: string) {
-        return this.#http.post("/download/dataset/" + name + ".jsonl", null, {
+        return this.#http.post("/download/dataset/" + name, null, {
             responseType: "blob"
         })
         .pipe(
@@ -44,7 +44,7 @@ export class HomeService {
     }
 
     removeDataset(name: string) {
-        return this.#http.delete<{ status: string }>("/dataset/" + name + ".jsonl").pipe(
+        return this.#http.delete<{ status: string }>("/dataset/" + name).pipe(
             take(1)
         );
     }
@@ -71,7 +71,7 @@ export class HomeService {
         );
     }
 
-    existsInstructionState() {
+    getInstructionState() {
         return this.#http.get<{ payload: string }>("/instruction").pipe(
             map(v => v.payload),
             take(1)

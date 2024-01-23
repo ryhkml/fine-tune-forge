@@ -1,0 +1,27 @@
+<div class="app-section app-section-small" app-height-viewport="offset-top: true; offset-bottom: true">
+    <div class="app-container app-container-xlarge">
+        <h1 nz-typography>{{ name }}</h1>
+        <div class="app-margin-small-bottom">
+            <form [formGroup]="editorFormGroup">
+                <div>
+                    <textarea nz-input [formControlName]="'dataset'" rows="16" spellcheck="false" autocomplete="off" required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="app-margin-bottom">
+            <nz-alert [nzType]="alertType" [nzMessage]="messageImageOCRWarningRef"></nz-alert>
+            <ng-template #messageImageOCRWarningRef>
+                <p nz-typography class="app-margin-remove"><strong>{{ alertType | uppercase }}:</strong> {{ alertMessage }}</p>
+            </ng-template>
+        </div>
+        <div class="app-text-center">
+            <a nz-button [nzType]="'default'" [routerLink]="'/'">
+                @if (alertType == "info") {
+                    <b>DONE</b>
+                } @else {
+                    <b>BACK</b>
+                }
+            </a>
+        </div>
+    </div>
+</div>

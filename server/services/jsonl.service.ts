@@ -1,8 +1,9 @@
-import { appendFile, chmod, readFile, rm, writeFile } from "node:fs/promises";
+import { appendFile, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cwd } from "node:process";
 
-import { EMPTY, catchError, concat, defer, map, of, switchMap, throwError } from "rxjs";
+import { catchError, defer, forkJoin, map, of, switchMap, throwError } from "rxjs";
 import { snakeCase, toUpper } from "lodash";
 
 import { HttpException } from "./exception-filter.service";
@@ -90,7 +91,7 @@ export function addOpenAIDataset({ name, instruction, user, assistant }: OpenAIP
             // Dataset state is empty
             // Write new dataset
             if (datasetFile == "" || chunks.length == 0) {
-                return defer(() => writeFile(filepath, dataset, { mode: "444" })).pipe(
+                return defer(() => writeFile(filepath, dataset, { encoding: "utf-8" })).pipe(
                     map(() => "DONE")
                 );
             }
@@ -110,38 +111,79 @@ export function addOpenAIDataset({ name, instruction, user, assistant }: OpenAIP
                     return throwError(() => new HttpException("The assistant content has already been added", 409));
                 }
             }
-            const addDataset$ = concat(
-                defer(() => chmod(filepath, "664")).pipe(
-                    switchMap(() => EMPTY)
-                ),
-                defer(() => appendFile(filepath, "\n" + dataset)).pipe(
-                    switchMap(() => EMPTY)
-                ),
-                defer(() => chmod(filepath, "444")).pipe(
-                    map(() => "DONE")
-                )
-            );
-            return addDataset$.pipe(
+            return defer(() => appendFile(filepath, "\n" + dataset, { encoding: "utf-8" })).pipe(
+                map(() => "DONE"),
                 catchError(e => throwError(() => new HttpException(String(e))))
             );
         })
     );
 }
 
-type WriteInstructionPayload = {
-    content: string;
+export function getAllDataset() {
+    const filepath = join(cwd(), "DATASET/");
+    return defer(() => readdir(filepath, { encoding: "utf-8" })).pipe(
+        map(v => {
+            const datasets = v
+                .map(state => state.trim())
+                .filter(state => !!state && state.includes(".jsonl"))
+                .map(state => state.replace(".jsonl", ""))
+                .sort((a, b) => a.localeCompare(b));
+            return datasets;
+        }),
+        catchError(() => of<Array<string>>([]))
+    );
 }
 
-const filepathInstructionState = join(cwd(), "DATATMP/instruction.state");
-
-export function existsInstructionState() {
-    return defer(() => readFile(filepathInstructionState, { encoding: "utf-8" })).pipe(
+export function getDataset(name: string) {
+    const filepath = join(cwd(), "DATASET/" + name + ".jsonl");
+    return defer(() => readFile(filepath, { encoding: "utf-8" })).pipe(
         catchError(() => of(""))
     );
 }
 
-export function writeInstructionState({ content }: WriteInstructionPayload) {
-    return defer(() => writeFile(filepathInstructionState, content)).pipe(
+export function replaceDataset(name: string, content: string) {
+    const filepath = join(cwd(), "DATASET/" + name + ".jsonl");
+    return defer(() => writeFile(filepath, content, { encoding: "utf-8" })).pipe(
+        map(() => "DONE"),
+        catchError(e => throwError(() => new HttpException(String(e))))
+    );
+}
+
+export function downloadDataset(name: string) {
+    const filepath = join(cwd(), "DATASET/" + name + ".jsonl");
+    if (!existsSync(filepath)) {
+        return throwError(() => new HttpException("Dataset unavailable", 404));
+    }
+    return forkJoin([
+        of(filepath),
+        of(name + ".jsonl")
+    ]);
+}
+
+export function removeDataset(name: string) {
+    const filepath = join(cwd(), "DATASET/" + name + ".jsonl");
+    return defer(() => rm(filepath, { force: true })).pipe(
+        map(() => "DONE"),
+        catchError(() => of("DONE"))
+    );
+}
+
+const filepathInstructionState = join(cwd(), "DATATMP/instruction.state");
+
+export function getInstructionState() {
+    return defer(() => readFile(filepathInstructionState, { encoding: "utf-8" })).pipe(
+        map(v => {
+            if (v) {
+                return v;
+            }
+            return "EMPTY";
+        }),
+        catchError(() => of("UNAVAILABLE"))
+    );
+}
+
+export function saveInstructionState(content: string) {
+    return defer(() => writeFile(filepathInstructionState, content, { encoding: "utf-8" })).pipe(
         map(() => "DONE"),
         catchError(() => throwError(() => new HttpException("There was an error")))
     );

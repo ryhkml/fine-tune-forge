@@ -19,7 +19,7 @@ import * as compression from "compression";
 import * as cookieParser from "cookie-parser";
 import * as csurf from "csurf";
 
-import { getAllDatasetController, addDatasetController, downloadDatasetController, removeDatasetController, existsInstructionStateController, writeInstructionStateController, removeInstructionStateController } from "server/controller/jsonl.controller";
+import { getAllDatasetController, addDatasetController, downloadDatasetController, removeDatasetController, getInstructionStateController, saveInstructionStateController, removeInstructionStateController, getDatasetController, replaceDatasetController } from "server/controller/jsonl.controller";
 import { imageOCRController } from "server/controller/document-ocr.controller";
 import { imageOCRUpload } from "server/middlewares/multer.middleware";
 import { logInfo } from "server/services/logger.service";
@@ -97,12 +97,14 @@ export function app() {
 
     // Controller
     server.get("/dataset", getAllDatasetController);
+    server.get("/dataset/:name", getDatasetController);
+    server.patch("/dataset/:name", replaceDatasetController);
     server.post("/add/dataset", addDatasetController);
     server.post("/download/dataset/:name", downloadDatasetController);
     server.delete("/dataset/:name", removeDatasetController);
     // 
-    server.get("/instruction", existsInstructionStateController);
-    server.post("/save/instruction", writeInstructionStateController);
+    server.get("/instruction", getInstructionStateController);
+    server.post("/save/instruction", saveInstructionStateController);
     server.delete("/instruction", removeInstructionStateController);
     // 
     server.post("/scan/images", imageOCRUpload, imageOCRController);
