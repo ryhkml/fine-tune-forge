@@ -13,6 +13,6 @@ export const datasetResolver: ResolveFn<ResolveDataset> = (route, _) => {
     const name = route.paramMap.get("name") || "";
     const datasetService = inject(DatasetService);
     return datasetService.getDataset(name).pipe(
-        map(v => ({ name, content: v }))
+        map(content => ({ name, content }))
     );
 };
