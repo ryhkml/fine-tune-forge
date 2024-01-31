@@ -5,7 +5,7 @@ import { Injectable, inject } from "@angular/core";
 import { EMPTY, concat, map, switchMap, take } from "rxjs";
 
 type AddDatasetPayload = {
-    [f: string]: string | number | boolean;
+    [f: string]: string;
 }
 
 @Injectable()

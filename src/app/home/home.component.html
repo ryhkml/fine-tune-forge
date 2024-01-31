@@ -18,24 +18,46 @@
                             <nz-option [nzLabel]="'GPT-3.5'" [nzValue]="'OPENAI'"></nz-option>
                         </nz-select>
                     </div>
-                    <div class="app-margin">
+                    <div [formGroupName]="'name'" class="app-margin">
                         <div class="app-margin-xsmall-bottom">
                             <b nz-typography>Name</b>
-                            <br>
-                            <span nz-typography [nzType]="'secondary'">Input the same name to add the dataset</span>
                         </div>
-                        <input nz-input [formControlName]="'name'" placeholder="Math tutor" type="text" spellcheck="true" autocomplete="off" minlength="3" maxlength="64" required>
+                        <nz-select [formControlName]="'select'" [nzAllowClear]="true" [nzPlaceHolder]="'Select'" [nzDropdownRender]="createNewOneRef" style="width: 100%;">
+                            @for (dataset of listDatasetName; track dataset.value) {
+                                @if (dataset.new) {
+                                    <nz-option [nzCustomContent]="true" [nzLabel]="dataset.label" [nzValue]="dataset.value">
+                                        <nz-badge [nzDot]="true">
+                                            <span>{{ dataset.label }}</span>
+                                        </nz-badge>
+                                    </nz-option>
+                                } @else {
+                                    <nz-option [nzLabel]="dataset.label" [nzValue]="dataset.value"></nz-option>
+                                }
+                            }
+                        </nz-select>
+                        <!-- Dropdown creator -->
+                        <ng-template #createNewOneRef>
+                            <nz-divider style="margin: 4px 0;"></nz-divider>
+                            <div class="app-container-cnoref">
+                                <input #inputElement nz-input [formControlName]="'input'" type="text" placeholder="Math tutor" spellcheck="false" autocomplete="off" minlength="3" maxlength="64">
+                                <div class="app-create-cnoref">
+                                    <button (click)="createDatasetName()" nz-button [nzType]="'default'" type="button" tabindex="-1">
+                                        <b>CREATE</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </ng-template>
                     </div>
-                    <div class="app-margin">
+                    <div [formGroupName]="'instruction'" class="app-margin">
                         <div class="app-margin-xsmall-bottom">
                             <div>
-                                <label nz-checkbox [formControlName]="'instructionSave'">
+                                <label nz-checkbox [formControlName]="'check'">
                                     <b nz-typography>{{ generateJSONLT1 }}</b>
                                 </label>
                             </div>
                             <span nz-typography [nzType]="'secondary'">Check to save instructions</span>
                         </div>
-                        <textarea nz-input [formControlName]="'instruction'" placeholder="You are a personal math tutor. I will provide some mathematical equations or concepts, and it will be your job to explain them in easy-to-understand terms" rows="4" spellcheck="true" autocomplete="off" required></textarea>
+                        <textarea nz-input [formControlName]="'input'" placeholder="You are a personal math tutor. I will provide some mathematical equations or concepts, and it will be your job to explain them in easy-to-understand terms" rows="4" spellcheck="true" autocomplete="off" required></textarea>
                     </div>
                     <div class="app-margin">
                         <div class="app-margin-xsmall-bottom">
@@ -64,11 +86,6 @@
                                     <span *nzSpaceItem>
                                         <button (click)="downloadDataset(dataset)" nz-button [nzSize]="'small'" title="Download Dataset" tabindex="-1">
                                             <span nz-icon [nzType]="'download'"></span>
-                                        </button>
-                                    </span>
-                                    <span *nzSpaceItem>
-                                        <button (click)="setName(dataset)" nz-button [nzSize]="'small'" title="Set Name" tabindex="-1">
-                                            <span nz-icon [nzType]="'form'"></span>
                                         </button>
                                     </span>
                                     <span *nzSpaceItem>

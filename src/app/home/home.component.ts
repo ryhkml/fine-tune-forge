@@ -4,8 +4,10 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { NzAlertModule } from "ng-zorro-antd/alert";
+import { NzBadgeModule } from "ng-zorro-antd/badge";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
+import { NzDividerModule } from "ng-zorro-antd/divider";
 import { NzIconModule } from "ng-zorro-antd/icon";
 import { NzImageModule } from "ng-zorro-antd/image";
 import { NzInputModule } from "ng-zorro-antd/input";
@@ -17,7 +19,7 @@ import { NzSpinModule } from "ng-zorro-antd/spin";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
 import { BehaviorSubject, Subscription, debounceTime, distinctUntilChanged, filter, map, noop, switchMap } from "rxjs";
-import { defer as deferLD, toUpper, trim } from "lodash";
+import { defer as deferLD, snakeCase, toUpper, trim } from "lodash";
 
 import { HomeService } from "./home.service";
 
@@ -35,8 +37,10 @@ import { TruncatePipe } from "../shared/truncate.pipe";
         ReactiveFormsModule,
         // Styles
         NzAlertModule,
+        NzBadgeModule,
         NzButtonModule,
         NzCheckboxModule,
+        NzDividerModule,
         NzIconModule,
         NzImageModule,
         NzInputModule,
@@ -54,6 +58,7 @@ import { TruncatePipe } from "../shared/truncate.pipe";
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
+    listDatasetName: Array<{ new: boolean, label: string, value: string }> = [];
     listDataset: Array<string> = [];
     generateJSONLStatus = "IDLE";
 
@@ -73,26 +78,36 @@ export class HomeComponent implements OnInit, OnDestroy {
                 Validators.required
             ]
         }),
-        name: new FormControl("", {
-            nonNullable: true,
-            validators: [
-                Validators.minLength(3),
-                Validators.maxLength(64),
-                Validators.required
-            ]
+        name: new FormGroup({
+            select: new FormControl<string | null>(null, {
+                validators: [
+                    Validators.minLength(3),
+                    Validators.maxLength(64),
+                    Validators.required
+                ]
+            }),
+            input: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.minLength(3),
+                    Validators.maxLength(64)
+                ]
+            })
         }),
-        instruction: new FormControl("", {
-            nonNullable: true,
-            validators: [
-                Validators.minLength(1),
-                Validators.required
-            ]
-        }),
-        instructionSave: new FormControl(false, {
-            nonNullable: true,
-            validators: [
-                Validators.required
-            ]
+        instruction: new FormGroup({
+            check: new FormControl(false, {
+                nonNullable: true,
+                validators: [
+                    Validators.required
+                ]
+            }),
+            input: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.minLength(1),
+                    Validators.required
+                ]
+            })
         }),
         user: new FormControl("", {
             nonNullable: true,
@@ -119,10 +134,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     readonly #baseModel = this.generateJSONLFormGroup.get("baseModel")!;
-    readonly #name = this.generateJSONLFormGroup.get("name")!;
+    readonly #nameSelect = this.generateJSONLFormGroup.get("name")?.get("select")!;
+    readonly #nameInput = this.generateJSONLFormGroup.get("name")?.get("input")!;
     readonly #assistant = this.generateJSONLFormGroup.get("assistant")!;
-    readonly #instruction = this.generateJSONLFormGroup.get("instruction")!;
-    readonly #instructionSave = this.generateJSONLFormGroup.get("instructionSave")!;
+    readonly #instructionInput = this.generateJSONLFormGroup.get("instruction")?.get("input")!;
+    readonly #instructionCheck = this.generateJSONLFormGroup.get("instruction")?.get("check")!;
 
     readonly #removeNewLines = this.imageOCRFormGroup.get("removeNewLines")!;
     readonly #extractedText = this.imageOCRFormGroup.get("extractedText")!;
@@ -156,15 +172,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         // 
         this.addCustomValidators();
         // 
-        this.listDataset = this.#route.snapshot.data["home"]["datasets"];
+        const datasetSnapshot = this.#route.snapshot.data["home"]["datasets"] as Array<string>;
+        this.listDataset = datasetSnapshot;
+        this.listDatasetName = datasetSnapshot.map(v => ({ label: v, new: false, value: v }));
         // 
         this.initInstructionState();
         // 
-        this.#instructionSaveSubscription = this.#instructionSave.valueChanges.pipe(
+        this.#instructionSaveSubscription = this.#instructionCheck.valueChanges.pipe(
             distinctUntilChanged(),
             switchMap(v => {
                 if (v) {
-                    return this.#homeService.saveInstructionState(this.#instruction.value || "").pipe(
+                    return this.#homeService.saveInstructionState(this.#instructionInput.value || "").pipe(
                         map(() => v)
                     );
                 }
@@ -187,8 +205,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
         });
         // 
-        this.#instructionSubscription = this.#instruction.valueChanges.pipe(
-            filter(() => !!this.#instructionSave.value && this.#instruction.valid),
+        this.#instructionSubscription = this.#instructionInput.valueChanges.pipe(
+            filter(() => !!this.#instructionCheck.value && this.#instructionInput.valid),
             debounceTime(100),
             switchMap(v => this.#homeService.saveInstructionState(v).pipe(
                 map(() => null)
@@ -262,7 +280,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.generateJSONLStatus = "PROCESS";
         this.generateJSONLFormGroup.disable({ emitEvent: false });
         
-        this.#homeService.addDataset(this.generateJSONLFormGroup.getRawValue()).subscribe({
+        const { baseModel, name, user, assistant, instruction } = this.generateJSONLFormGroup.getRawValue();
+        const payload = {
+            baseModel,
+            name: String(name.select),
+            instruction: instruction.input,
+            user,
+            assistant
+        };
+        this.#homeService.addDataset(payload).subscribe({
             next: v => {
                 this.generateJSONLFormGroup.enable({ emitEvent: false });
                 this.#assistant.reset();
@@ -325,6 +351,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.#homeService.removeDataset(name).subscribe({
                     next: () => {
                         this.listDataset = this.listDataset.filter(v => v != name);
+                        this.listDatasetName = this.listDatasetName.filter(v => v.value != name);
                         this.#nzNotificationService.blank("Generate JSONL", "Dataset has been removed", {
                             nzCloseIcon: this.emptyRef
                         });
@@ -334,15 +361,28 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     }
 
-    setName(name: string) {
-        if (this.#name.value == name) {
+    createDatasetName() {
+        const value = trim(this.#nameInput.value) || "";
+        if (value == "") {
+            this.#nzNotificationService.error("Dataset Name", "Cannot be empty", {
+                nzCloseIcon: this.emptyRef
+            });
             return;
         }
-        this.#name.patchValue(name);
-        if (this.#name.touched) {
+        const newName = toUpper(snakeCase(value));
+        const newValue = {
+            new: true,
+            label: newName,
+            value: newName
+        };
+        if (this.listDatasetName.some(name => name.value == newName)) {
+            this.#nzNotificationService.error("Dataset Name", `${newName} has been registered`, {
+                nzCloseIcon: this.emptyRef
+            });
             return;
         }
-        this.#name.markAllAsTouched();
+        this.listDatasetName = [...this.listDatasetName, newValue].sort((a, b) => a.value.localeCompare(b.value));
+        this.#nameInput.reset();
     }
 
     onImageSelected(event: Event) {
@@ -473,8 +513,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     private addCustomValidators() {
-        this.#name.addValidators(control => {
-            const value = control.value as string;
+        this.#nameSelect.addValidators(control => {
+            const value = trim(control.value);
             const vSplit = value.split(" ").map(v => v.trim());
             if (value && vSplit.some(v => v == "")) {
                 return { err: true };
@@ -482,7 +522,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             return null;
         });
         // 
-        this.#instruction.addValidators(control => {
+        this.#instructionInput.addValidators(control => {
             const value = trim(control.value);
             if (toUpper(value) == "EMPTY" || toUpper(value) == "UNAVAILABLE") {
                 return { err: true };
@@ -495,17 +535,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         const instruction = this.#route.snapshot.data["home"]["instruction"] as string;
         switch(instruction) {
             case "EMPTY":
-                this.#instructionSave.patchValue(true, { emitEvent: false });
-                this.#instructionSave.markAllAsTouched();
+                this.#instructionCheck.patchValue(true, { emitEvent: false });
+                this.#instructionCheck.markAllAsTouched();
                 break;
             case "UNAVAILABLE":
                 noop();
                 break;
             default:
-                this.#instruction.patchValue(instruction, { emitEvent: false });
-                this.#instruction.markAllAsTouched();
-                this.#instructionSave.patchValue(true, { emitEvent: false });
-                this.#instructionSave.markAllAsTouched();
+                this.#instructionInput.patchValue(instruction, { emitEvent: false });
+                this.#instructionInput.markAllAsTouched();
+                this.#instructionCheck.patchValue(true, { emitEvent: false });
+                this.#instructionCheck.markAllAsTouched();
                 break;
         }
     }

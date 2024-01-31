@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { cwd } from "node:process";
 
@@ -57,7 +58,14 @@ export function scanImage(files: Array<Express.Multer.File>) {
             });
             return forkJoin(bulkProcessDocument$);
         }),
-        catchError(e => throwError(() => new HttpException(String(e))))
+        catchError(e => throwError(() => new HttpException(String(e)))),
+        finalize(() => {
+            // Cleanup images
+            for (let i = 0; i < files.length; i++) {
+                const { filename } = files[i];
+                rmSync(docFilepath(filename), { force: true });
+            }
+        })
     );
 }
 
@@ -83,9 +91,11 @@ function mapGetText() {
                 }
                 return "";
             }),
-            catchError(e => of(String(e)).pipe(
-                finalize(() => logError(String(e)))
-            )),
+            catchError(e => {
+                const errMessage = String(e);
+                logError(errMessage);
+                return of(errMessage);
+            }),
             finalize(() => paragraphTextState = null)
         );
     }

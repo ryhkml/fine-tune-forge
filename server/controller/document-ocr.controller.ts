@@ -1,9 +1,5 @@
-import { rmSync } from "node:fs";
-import { join } from "node:path";
-import { cwd } from "node:process";
-
-import { take } from "rxjs";
 import { NextFunction, Request, Response } from "express";
+import { take } from "rxjs";
 
 import { scanImage } from "server/services/document-ocr.service";
 
@@ -14,13 +10,6 @@ export function imageOCRController(req: Request, res: Response, _: NextFunction)
     )
     .subscribe({
         next: v => res.status(200).json({ status: "DONE", payload: v }),
-        error: e => res.status(e.statusCode).json({ status: "ERROR", payload: String(e) }),
-        complete: () => {
-            for (let i = 0; i < files.length; i++) {
-                const { filename } = files[i];
-                const filepath = join(cwd(), "DATADOC_OCR/" + filename);
-                rmSync(filepath, { force: true });
-            }
-        }
+        error: e => res.status(e.statusCode).json({ status: "ERROR", payload: String(e) })
     });
 }
