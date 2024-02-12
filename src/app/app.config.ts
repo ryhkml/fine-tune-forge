@@ -1,6 +1,6 @@
 import { ApplicationConfig } from "@angular/core";
 import { registerLocaleData } from "@angular/common";
-import { provideRouter, withEnabledBlockingInitialNavigation } from "@angular/router";
+import { provideRouter, withEnabledBlockingInitialNavigation, withRouterConfig } from "@angular/router";
 import { provideHttpClient, withFetch, withXsrfConfiguration, withInterceptors } from "@angular/common/http";
 import { provideClientHydration } from "@angular/platform-browser";
 import { provideAnimations } from "@angular/platform-browser/animations";
@@ -21,14 +21,15 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(
             routes,
+            withRouterConfig({ resolveNavigationPromiseOnError: true }),
             withEnabledBlockingInitialNavigation()
         ),
         provideClientHydration(),
         provideHttpClient(
             withFetch(),
             withXsrfConfiguration({
-                cookieName: "XSRF-TOKEN",
-                headerName: "X-XSRF-TOKEN"
+                cookieName: "__Host-c.x-ftf-token",
+                headerName: "X-Xftf-Cre"
             }),
             withInterceptors([
                 httpInterceptor

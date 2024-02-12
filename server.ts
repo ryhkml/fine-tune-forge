@@ -22,6 +22,7 @@ import * as csurf from "csurf";
 import { getAllDatasetController, addDatasetController, downloadDatasetController, removeDatasetController, getInstructionStateController, saveInstructionStateController, removeInstructionStateController, getDatasetController, replaceDatasetController } from "server/controller/jsonl.controller";
 import { imageOCRController } from "server/controller/document-ocr.controller";
 import { imageOCRUpload } from "server/middlewares/multer.middleware";
+import { headerApi } from "server/middlewares/header-api.middleware";
 import { logInfo } from "server/services/logger.service";
 
 import { REQUEST, RESPONSE } from "./src/express.tokens";
@@ -52,12 +53,19 @@ export function app() {
 
     server.disable("x-powered-by");
 
+    const {
+        COOKIE_PARSER_SECRET_KEY,
+        CSRF_KEY
+    } = env.getValue();
+
     // Middlewares
     server.use((_, res, next) => {
         res.set({
-            "X-Frame-Options": "DENY",
-            "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "public, max-age=604800, stale-while-revalidate=86400 immutable",
+            "Permissions-Policy": "camera=(), microphone=(), interest-cohort=()",
             "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
             "X-XSS-Protection": "1; mode=block"
         });
         next();
@@ -73,23 +81,25 @@ export function app() {
     server.use(json({
         limit: 95 * 1024 * 1024
     }));
-    server.use(cookieParser(env.getValue()["COOKIE_PARSER_SECRET_KEY"]));
+    server.use(cookieParser(COOKIE_PARSER_SECRET_KEY));
     server.use(csurf({
         cookie: {
-            sameSite: "none",
+            sameSite: "strict",
             httpOnly: true,
-            maxAge: 21600,
             secure: true,
-            path: '/',
-            key: 'CSRF'
-        }
+            signed: true,
+            // Prefix your cookies with "__Host-" or "__Secure-"
+            // This prefix doesn’t allow subdomains or other domains to overwrite your cookies if they don’t set the cookie previously
+            // Source: https://dev-academy.com/csurf-vulnerability
+            key: CSRF_KEY
+        },
+        value: req => String(req.headers["x-xftf-cre"])
     }));
     server.use((req, res, next) => {
-        res.cookie("XSRF-TOKEN", req.csrfToken(), {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none"
-        })
+        res.cookie("__Host-c.x-ftf-token", req.csrfToken(), {
+            sameSite: "strict",
+            secure: true
+        });
         next();
     });
     server.use(expressUserAgent());
@@ -98,16 +108,16 @@ export function app() {
     // Controller
     server.get("/dataset", getAllDatasetController);
     server.get("/dataset/:name", getDatasetController);
-    server.patch("/dataset/:name", replaceDatasetController);
-    server.post("/add/dataset", addDatasetController);
-    server.post("/download/dataset/:name", downloadDatasetController);
-    server.delete("/dataset/:name", removeDatasetController);
+    server.patch("/dataset/:name", [headerApi], replaceDatasetController);
+    server.post("/add/dataset", [headerApi], addDatasetController);
+    server.post("/download/dataset/:name", [headerApi], downloadDatasetController);
+    server.delete("/dataset/:name", [headerApi], removeDatasetController);
     // 
     server.get("/instruction", getInstructionStateController);
-    server.post("/save/instruction", saveInstructionStateController);
-    server.delete("/instruction", removeInstructionStateController);
+    server.post("/save/instruction", [headerApi], saveInstructionStateController);
+    server.delete("/instruction", [headerApi], removeInstructionStateController);
     // 
-    server.post("/scan/images", imageOCRUpload, imageOCRController);
+    server.post("/scan/images", [headerApi, imageOCRUpload], imageOCRController);
 
     // Example Express Rest API endpoints
     // server.get("/api/**", (req, res) => { });
@@ -171,15 +181,5 @@ function run() {
     }
 }
 
-// Webpack will replace "require" with "__webpack_require__"
-// "__non_webpack_require__" is a proxy to Node "require"
-// The below code is to ensure that the server is run only when not requiring the bundle.
-declare const __non_webpack_require__: NodeRequire;
-const mainModule = __non_webpack_require__.main;
-const moduleFilename = (mainModule && mainModule.filename) || "";
-if (moduleFilename === __filename || moduleFilename.includes("iisnode")) {
-    saveEnv();
-    run();
-}
-
-export default bootstrap;
+saveEnv();
+run();
