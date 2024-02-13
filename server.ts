@@ -21,6 +21,7 @@ import * as csurf from "csurf";
 
 import { getAllDatasetController, addDatasetController, downloadDatasetController, removeDatasetController, getInstructionStateController, saveInstructionStateController, removeInstructionStateController, getDatasetController, replaceDatasetController } from "server/controller/jsonl.controller";
 import { imageOCRController } from "server/controller/document-ocr.controller";
+import { exceptionToken } from "server/middlewares/exception-token.middleware";
 import { imageOCRUpload } from "server/middlewares/multer.middleware";
 import { headerApi } from "server/middlewares/header-api.middleware";
 import { logInfo } from "server/services/logger.service";
@@ -104,6 +105,7 @@ export function app() {
     });
     server.use(expressUserAgent());
     server.use(mw());
+    server.use(exceptionToken);
 
     // Controller
     server.get("/dataset", getAllDatasetController);
