@@ -50,7 +50,7 @@ RUN npm ci --omit=dev && \
         -o -name "*.woff" \
         -o -name "*.bazel" \) -exec rm -rf {} \; && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \; && \
-    cd /app/dist/gpt-fine-tuning-creator && \
+    cd /app/dist/fine-tune-forge && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \; && \
     cd /app/tls && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \;
@@ -85,4 +85,4 @@ EXPOSE 12400
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-CMD ["node", "/app/dist/gpt-fine-tuning-creator/server/main.js"]
+CMD ["node", "/app/dist/fine-tune-forge/server/main.js"]

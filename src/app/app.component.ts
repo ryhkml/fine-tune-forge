@@ -12,7 +12,7 @@ import { RouterOutlet } from "@angular/router";
 })
 export class AppComponent {
 
-    readonly title = "gpt-fine-tuning-creator";
+    readonly title = "fine-tune-forge";
 
     @HostBinding("attr.ng-version")
     readonly ngVersion = "0.0.0-placeholder";

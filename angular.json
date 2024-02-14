@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "gpt-fine-tuning-creator": {
+        "fine-tune-forge": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -17,7 +17,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist/gpt-fine-tuning-creator/browser",
+                        "outputPath": "dist/fine-tune-forge/browser",
                         "index": "src/index.html",
                         "main": "src/main.ts",
                         "polyfills": [
@@ -76,10 +76,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "gpt-fine-tuning-creator:build:production"
+                            "buildTarget": "fine-tune-forge:build:production"
                         },
                         "development": {
-                            "buildTarget": "gpt-fine-tuning-creator:build:development"
+                            "buildTarget": "fine-tune-forge:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
@@ -87,7 +87,7 @@
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "buildTarget": "gpt-fine-tuning-creator:build"
+                        "buildTarget": "fine-tune-forge:build"
                     }
                 },
                 "test": {
@@ -113,7 +113,7 @@
                 "server": {
                     "builder": "@angular-devkit/build-angular:server",
                     "options": {
-                        "outputPath": "dist/gpt-fine-tuning-creator/server",
+                        "outputPath": "dist/fine-tune-forge/server",
                         "main": "server.ts",
                         "tsConfig": "tsconfig.server.json",
                         "inlineStyleLanguage": "less"
@@ -136,12 +136,12 @@
                     "builder": "@angular-devkit/build-angular:ssr-dev-server",
                     "configurations": {
                         "development": {
-                            "browserTarget": "gpt-fine-tuning-creator:build:development",
-                            "serverTarget": "gpt-fine-tuning-creator:server:development"
+                            "browserTarget": "fine-tune-forge:build:development",
+                            "serverTarget": "fine-tune-forge:server:development"
                         },
                         "production": {
-                            "browserTarget": "gpt-fine-tuning-creator:build:production",
-                            "serverTarget": "gpt-fine-tuning-creator:server:production"
+                            "browserTarget": "fine-tune-forge:build:production",
+                            "serverTarget": "fine-tune-forge:server:production"
                         }
                     },
                     "defaultConfiguration": "development"
@@ -155,12 +155,12 @@
                     },
                     "configurations": {
                         "production": {
-                            "browserTarget": "gpt-fine-tuning-creator:build:production",
-                            "serverTarget": "gpt-fine-tuning-creator:server:production"
+                            "browserTarget": "fine-tune-forge:build:production",
+                            "serverTarget": "fine-tune-forge:server:production"
                         },
                         "development": {
-                            "browserTarget": "gpt-fine-tuning-creator:build:development",
-                            "serverTarget": "gpt-fine-tuning-creator:server:development"
+                            "browserTarget": "fine-tune-forge:build:development",
+                            "serverTarget": "fine-tune-forge:server:development"
                         }
                     },
                     "defaultConfiguration": "production"

@@ -41,7 +41,7 @@ export const env = new BehaviorSubject<EnvVar>({});
 // The Express app is exported so that it can be used by serverless Functions.
 export function app() {
     const server = express();
-    const browserDir = join(cwd(), "dist/gpt-fine-tuning-creator/browser");
+    const browserDir = join(cwd(), "dist/fine-tune-forge/browser");
     const indexHtml = existsSync(join(browserDir, "index.original.html"))
         ? join(browserDir, "index.original.html")
         : join(browserDir, "index.html");
