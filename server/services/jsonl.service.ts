@@ -25,7 +25,7 @@ type OpenAIPayload = {
 //     output: string;
 // }
 
-type OpenAIDataset = {
+export type OpenAIDataset = {
     messages: [
         {
             role: "system";

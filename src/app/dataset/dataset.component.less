@@ -3,10 +3,24 @@
     form {
         
         textarea {
-            font-family: monospace !important;
-            font-size: 16px !important;
-            white-space: pre !important;
             overflow: auto !important;
+            width: 100% !important;
+            resize: none !important;
+        }
+
+        textarea[readonly] {
+            opacity: 0.4 !important;
+            overflow: none !important;
+            pointer-events: none !important;
+        }
+
+        tr.tr-readonly {
+            cursor: not-allowed !important;
+            user-select: none !important;
+        }
+
+        .td-textarea {
+            padding: 0 !important;
         }
     }
 }

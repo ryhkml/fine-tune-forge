@@ -1,27 +1,95 @@
-<div class="app-section app-section-small" app-height-viewport="offset-top: true; offset-bottom: true">
-    <div class="app-container app-container-xlarge">
+<div class="app-section app-section-xsmall app-text-center" app-height-viewport="offset-top: true; offset-bottom: true">
+    <div class="app-container app-container-expand">
         <h1 nz-typography>{{ name }}</h1>
-        <div class="app-margin-small-bottom">
-            <form [formGroup]="editorFormGroup">
-                <div>
-                    <textarea nz-input [formControlName]="'dataset'" rows="16" spellcheck="false" autocomplete="off" required></textarea>
-                </div>
-            </form>
-        </div>
-        <div class="app-margin-bottom">
+        <div class="app-margin">
             <nz-alert [nzType]="alertType" [nzMessage]="messageImageOCRWarningRef"></nz-alert>
             <ng-template #messageImageOCRWarningRef>
                 <p nz-typography class="app-margin-remove"><strong>{{ alertType | uppercase }}:</strong> {{ alertMessage }}</p>
             </ng-template>
         </div>
-        <div class="app-text-center">
-            <a nz-button [nzType]="'default'" [routerLink]="'/'">
-                @if (alertType == "info") {
-                    <b>DONE</b>
-                } @else {
-                    <b>BACK</b>
-                }
-            </a>
+        <div class="app-margin">
+            <form [formGroup]="editorFormGroup">
+                <div class="app-container-flex">
+                    <nz-table #tableRef [nzData]="stateControlList" [nzSize]="'small'" [nzFrontPagination]="false" [nzShowPagination]="false" [nzTotal]="tableRef.data.length" [nzScroll]="{ y: '500px' }" [nzBordered]="true" [nzOuterBordered]="true" [nzFooter]="tableFooterRef">
+                        <thead>
+                            <tr>
+                                <th [nzLeft]="true" [nzAlign]="'center'" [nzWidth]="'64px'">
+                                    <h5 class="app-margin-remove" nz-typography>
+                                        <b>Line</b>
+                                    </h5>
+                                </th>
+                                <th [nzAlign]="'center'">
+                                    <h5 class="app-margin-remove" nz-typography>
+                                        <b>Instruction</b>
+                                    </h5>
+                                </th>
+                                <th [nzAlign]="'center'">
+                                    <h5 class="app-margin-remove" nz-typography>
+                                        <b>User</b>
+                                    </h5>
+                                </th>
+                                <th [nzAlign]="'center'">
+                                    <h5 class="app-margin-remove" nz-typography>
+                                        <b>Assistant</b>
+                                    </h5>
+                                </th>
+                                <th [nzAlign]="'center'" [nzWidth]="'100px'">
+                                    <h5 class="app-margin-remove" nz-typography>
+                                        <b>Action</b>
+                                    </h5>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody [formArrayName]="'state'">
+                            @for (stateFormGroup of tableRef.data; track $index) {
+                                <ng-container [formGroupName]="$index">
+                                    <tr #trRef [formGroupName]="'messages'" [class]="'tr-' + $index">
+                                        <td [nzLeft]="true" [nzAlign]="'center'">
+                                            <b>{{ $index + 1 }}</b>
+                                        </td>
+                                        <td [nzAlign]="'center'" class="td-textarea">
+                                            <textarea nz-input [nzBorderless]="true" [formControlName]="'instruction'" rows="4" spellcheck="false" autocomplete="off" readonly></textarea>
+                                        </td>
+                                        <td [nzAlign]="'center'" class="td-textarea">
+                                            <textarea nz-input [nzBorderless]="true" [formControlName]="'user'" rows="4" spellcheck="false" autocomplete="off" readonly></textarea>
+                                        </td>
+                                        <td [nzAlign]="'center'" class="td-textarea">
+                                            <textarea nz-input [nzBorderless]="true" [formControlName]="'assistant'" rows="4" spellcheck="false" autocomplete="off" readonly></textarea>
+                                        </td>
+                                        <td [nzAlign]="'center'">
+                                            @if (stateFormGroup.controls.messages.enabled) {
+                                                <div>
+                                                    @if (stateFormGroup.controls.messages.controls.metadata.controls.edit.value) {
+                                                        <button (click)="editDone($index)" nz-button [nzType]="'text'" [nzSize]="'small'" tabindex="-1">
+                                                            <b>DONE</b>
+                                                        </button>
+                                                    } @else {
+                                                        <button (click)="editLineDataset($index)" nz-button [nzType]="'text'" [nzSize]="'small'" tabindex="-1">
+                                                            <b>EDIT</b>
+                                                        </button>
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <button (click)="removeLine($index)" nz-button [nzDanger]="true" [nzType]="'text'" [nzSize]="'small'" [disabled]="stateFormGroup.controls.messages.controls.metadata.controls.edit.value" tabindex="-1">
+                                                        <b>REMOVE</b>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            }
+                        </tbody>
+                    </nz-table>
+                </div>
+            </form>
         </div>
+        <ng-template #tableFooterRef>
+            <div class="app-text-center">
+                <a nz-button [nzType]="'default'" [routerLink]="'/'">
+                    <b>BACK</b>
+                </a>
+            </div>
+        </ng-template>
     </div>
 </div>
