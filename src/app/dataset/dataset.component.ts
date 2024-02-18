@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, QueryList, Renderer2, ViewChildren, inject } from "@angular/core";
-import { NgClass, UpperCasePipe } from "@angular/common";
+import { UpperCasePipe } from "@angular/common";
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
@@ -32,7 +32,6 @@ type OpenAIDatasetFormControl = {
     selector: "app-dataset",
     standalone: true,
     imports: [
-        NgClass,
         RouterModule,
         ReactiveFormsModule,
         NzAlertModule,

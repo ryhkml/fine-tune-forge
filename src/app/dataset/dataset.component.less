@@ -3,24 +3,25 @@
     form {
         
         textarea {
-            overflow: auto !important;
-            width: 100% !important;
+            overflow: auto;
+            width: 100%;
             resize: none !important;
         }
 
         textarea[readonly] {
-            opacity: 0.4 !important;
+            opacity: 0.3 !important;
             overflow: none !important;
             pointer-events: none !important;
+            user-select: none !important;
         }
 
         tr.tr-readonly {
-            cursor: not-allowed !important;
+            pointer-events: none !important;
             user-select: none !important;
         }
 
         .td-textarea {
-            padding: 0 !important;
+            padding: 0;
         }
     }
 }

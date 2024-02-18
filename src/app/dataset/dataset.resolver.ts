@@ -17,13 +17,11 @@ export const datasetResolver: ResolveFn<ResolveDataset> = (route, _) => {
     const name = route.paramMap.get("name") || "";
     const datasetService = inject(DatasetService);
     return datasetService.getDataset(name).pipe(
-        map(content => {
-            return {
-                name: toUpper(snakeCase(name)),
-                content: content == ""
-                    ? [] as Array<OpenAIDataset>
-                    : content.split("\n").map(v => JSON.parse(v)) as Array<OpenAIDataset>
-            }
-        })
+        map(content => ({
+            name: toUpper(snakeCase(name)),
+            content: content == ""
+                ? [] as Array<OpenAIDataset>
+                : content.split("\n").map(v => JSON.parse(v)) as Array<OpenAIDataset>
+        }))
     );
 };

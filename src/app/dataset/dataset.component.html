@@ -59,7 +59,7 @@
                                         <td [nzAlign]="'center'">
                                             @if (stateFormGroup.controls.messages.enabled) {
                                                 <div>
-                                                    @if (stateFormGroup.controls.messages.controls.metadata.controls.edit.value) {
+                                                    @if (!!stateFormGroup.controls.messages.controls.metadata.controls.edit.value) {
                                                         <button (click)="editDone($index)" nz-button [nzType]="'text'" [nzSize]="'small'" tabindex="-1">
                                                             <b>DONE</b>
                                                         </button>
@@ -70,7 +70,7 @@
                                                     }
                                                 </div>
                                                 <div>
-                                                    <button (click)="removeLine($index)" nz-button [nzDanger]="true" [nzType]="'text'" [nzSize]="'small'" [disabled]="stateFormGroup.controls.messages.controls.metadata.controls.edit.value" tabindex="-1">
+                                                    <button (click)="removeLine($index)" nz-button [nzDanger]="true" [nzType]="'text'" [nzSize]="'small'" [disabled]="!!stateFormGroup.controls.messages.controls.metadata.controls.edit.value" tabindex="-1">
                                                         <b>REMOVE</b>
                                                     </button>
                                                 </div>
