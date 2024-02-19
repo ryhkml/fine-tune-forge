@@ -4,7 +4,7 @@ set -e
 
 cat <<EOF >.env
 COOKIE_PARSER_SECRET_KEY=""
-CSRF_KEY="__Host-prefix.x-csrf-token"
+CSRF_KEY="_CSRF"
 # Optional
 ## For more information visit https://cloud.google.com/document-ai/docs/process-documents-client-libraries#client-libraries-usage-nodejs
 GCP_PROJECT_ID=""

@@ -28,7 +28,9 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(
             withFetch(),
             withXsrfConfiguration({
-                cookieName: "__Host-c.x-ftf-token",
+                // WARNING!
+                // Prefix your cookies on production with "__Host-"
+                cookieName: "X-Ftf-Token",
                 headerName: "X-Xftf-Cre"
             }),
             withInterceptors([

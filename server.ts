@@ -87,19 +87,21 @@ export function app() {
         cookie: {
             sameSite: "strict",
             httpOnly: true,
-            secure: true,
-            signed: true,
-            // Prefix your cookies with "__Host-" or "__Secure-"
+            secure: CSRF_KEY.includes("__Host-"),
+            signed: CSRF_KEY.includes("__Host-"),
+            // Prefix your cookies on production with "__Host-"
             // This prefix doesn’t allow subdomains or other domains to overwrite your cookies if they don’t set the cookie previously
             // Source: https://dev-academy.com/csurf-vulnerability
-            key: CSRF_KEY
+            key: CSRF_KEY || "_CSRF"
         },
         value: req => String(req.headers["x-xftf-cre"])
     }));
     server.use((req, res, next) => {
-        res.cookie("__Host-c.x-ftf-token", req.csrfToken(), {
+        // WARNING!
+        // Prefix your cookies on production with "__Host-"
+        res.cookie("X-Ftf-Token", req.csrfToken(), {
             sameSite: "strict",
-            secure: true
+            secure: CSRF_KEY.includes("__Host-")
         });
         next();
     });
