@@ -1,10 +1,9 @@
-import { NgClass } from "@angular/common";
+import { LowerCasePipe, NgClass } from "@angular/common";
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, RendererStyleFlags2, TemplateRef, ViewChild, inject } from "@angular/core";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 
 import { NzAlertModule } from "ng-zorro-antd/alert";
-import { NzBadgeModule } from "ng-zorro-antd/badge";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
 import { NzDividerModule } from "ng-zorro-antd/divider";
@@ -18,12 +17,14 @@ import { NzSpaceModule } from "ng-zorro-antd/space";
 import { NzSpinModule } from "ng-zorro-antd/spin";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
-import { BehaviorSubject, Subscription, debounceTime, distinctUntilChanged, filter, map, noop, switchMap } from "rxjs";
+import { Subscription, debounceTime, distinctUntilChanged, filter, map, noop, switchMap } from "rxjs";
 import { defer as deferLD, snakeCase, toUpper, trim } from "lodash";
 
 import { HomeService } from "./home.service";
 
 import { TruncatePipe } from "../shared/truncate.pipe";
+
+import { OptionLabelPipe } from "./option-label.pipe";
 
 @Component({
     selector: "app-home",
@@ -37,7 +38,6 @@ import { TruncatePipe } from "../shared/truncate.pipe";
         ReactiveFormsModule,
         // Styles
         NzAlertModule,
-        NzBadgeModule,
         NzButtonModule,
         NzCheckboxModule,
         NzDividerModule,
@@ -51,28 +51,26 @@ import { TruncatePipe } from "../shared/truncate.pipe";
         NzSpinModule,
         NzTypographyModule,
         // Pipes
-        TruncatePipe
+        LowerCasePipe,
+        TruncatePipe,
+        OptionLabelPipe
     ],
     templateUrl: "./home.component.html",
     styleUrls: ["./home.component.less"]
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
-    listDatasetName: Array<{ new: boolean, label: string, value: string }> = [];
-    listDataset: Array<string> = [];
-    generateJSONLStatus = "IDLE";
+    selectListDatasetName: Array<SelectListDatasetName> = [];
+    listDatasetName: Array<ListDatasetName> = [];
+
+    generatorJsonlStatus = "IDLE";
+    imageOcrStatus = "IDLE";
 
     imagesBase64: Array<{ id: string, src: string, name: string }> = [];
     files: Array<File> = [];
-    imageOCRStatus = "IDLE";
 
-    // Form title
-    generateJSONLT1 = "Instruction";
-    generateJSONLT2 = "User";
-    generateJSONLT3 = "Assistant";
-
-    readonly generateJSONLFormGroup = new FormGroup({
-        baseModel: new FormControl("OPENAI", {
+    readonly generatorJsonlFormGroup = new FormGroup<GeneratorJsonlFormGroup>({
+        baseModel: new FormControl<BaseModel>("OPENAI-GPT-3.5", {
             nonNullable: true,
             validators: [
                 Validators.required
@@ -93,35 +91,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                     Validators.maxLength(64)
                 ]
             })
-        }),
-        instruction: new FormGroup({
-            check: new FormControl(false, {
-                nonNullable: true,
-                validators: [
-                    Validators.required
-                ]
-            }),
-            input: new FormControl("", {
-                nonNullable: true,
-                validators: [
-                    Validators.minLength(1),
-                    Validators.required
-                ]
-            })
-        }),
-        user: new FormControl("", {
-            nonNullable: true,
-            validators: [
-                Validators.minLength(1),
-                Validators.required
-            ]
-        }),
-        assistant: new FormControl("", {
-            nonNullable: true,
-            validators: [
-                Validators.minLength(1),
-                Validators.required
-            ]
         })
     });
     readonly imageOCRFormGroup = new FormGroup({
@@ -133,23 +102,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         })
     });
 
-    readonly #baseModel = this.generateJSONLFormGroup.get("baseModel")!;
-    readonly #nameSelect = this.generateJSONLFormGroup.get("name")?.get("select")!;
-    readonly #nameInput = this.generateJSONLFormGroup.get("name")?.get("input")!;
-    readonly #assistant = this.generateJSONLFormGroup.get("assistant")!;
-    readonly #instructionInput = this.generateJSONLFormGroup.get("instruction")?.get("input")!;
-    readonly #instructionCheck = this.generateJSONLFormGroup.get("instruction")?.get("check")!;
-
-    readonly #removeNewLines = this.imageOCRFormGroup.get("removeNewLines")!;
-    readonly #extractedText = this.imageOCRFormGroup.get("extractedText")!;
-
     #extractedTextState = "";
 
     #baseModelSubscription: Subscription | null = null;
     #instructionSubscription: Subscription | null = null;
     #instructionSaveSubscription: Subscription | null = null;
-
     #removeNewLinesSubscription: Subscription | null = null;
+
+    readonly #removeNewLines = this.imageOCRFormGroup.get("removeNewLines")!;
+    readonly #extractedText = this.imageOCRFormGroup.get("extractedText")!;
 
     readonly #renderer2 = inject(Renderer2);
     readonly #route = inject(ActivatedRoute);
@@ -157,8 +118,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     readonly #nzNotificationService = inject(NzNotificationService);
     readonly #nzModalService = inject(NzModalService);
     readonly #homeService = inject(HomeService);
-
-    readonly #throttleSubject = new BehaviorSubject<"HOLD">("HOLD");
 
     @ViewChild("fileRef", { read: ElementRef })
     private readonly fileRef!: ElementRef<HTMLInputElement>;
@@ -169,88 +128,29 @@ export class HomeComponent implements OnInit, OnDestroy {
      * @private
     */
     ngOnInit() {
-        // 
-        this.addCustomValidators();
-        // 
-        const datasetSnapshot = this.#route.snapshot.data["home"]["datasets"] as Array<string>;
-        this.listDataset = datasetSnapshot;
-        this.listDatasetName = datasetSnapshot.map(v => ({ label: v, new: false, value: v }));
-        // 
-        this.initInstructionState();
-        // 
-        this.#instructionSaveSubscription = this.#instructionCheck.valueChanges.pipe(
-            distinctUntilChanged(),
-            switchMap(v => {
-                if (v) {
-                    return this.#homeService.saveInstructionState(this.#instructionInput.value || "").pipe(
-                        map(() => v)
-                    );
-                }
-                return this.#homeService.removeInstructionState().pipe(
-                    map(() => v)
-                );
-            })
-        )
-        .subscribe({
-            next: v => {
-                if (v) {
-                    this.#nzNotificationService.success("Generate JSONL", "Instruction storage has been enabled", {
-                        nzCloseIcon: this.emptyRef
-                    });
-                } else {
-                    this.#nzNotificationService.blank("Generate JSONL", "Instruction storage has been disabled", {
-                        nzCloseIcon: this.emptyRef
-                    });
-                }
-            }
+        const datasetSnapshot = this.#route.snapshot.data["home"]["collection"] as Array<ListDatasetName>;
+        this.listDatasetName = datasetSnapshot;
+        this.selectListDatasetName = datasetSnapshot.map(item => {
+            const datasetNames = item.datasetNames.map(name => ({
+                label: name,
+                value: name
+            }));
+            return {
+                model: item.model,
+                datasetNames
+            };
         });
         // 
-        this.#instructionSubscription = this.#instructionInput.valueChanges.pipe(
-            filter(() => !!this.#instructionCheck.value && this.#instructionInput.valid),
-            debounceTime(100),
-            switchMap(v => this.#homeService.saveInstructionState(v).pipe(
-                map(() => null)
-            ))
-        )
-        .subscribe(noop);
-        // 
-        this.#baseModelSubscription = this.#baseModel.valueChanges.pipe(
-            distinctUntilChanged()
-        )
-        .subscribe({
-            next: v => {
-                switch(v) {
-                    case "GOOGLE-TEXT-BISON":
-                        this.generateJSONLT1 = "Context";
-                        this.generateJSONLT2 = "Question";
-                        this.generateJSONLT3 = "Output";
-                        break;
-                    default:
-                        this.generateJSONLT1 = "Instruction";
-                        this.generateJSONLT2 = "User";
-                        this.generateJSONLT3 = "Assistant";
-                        break;
-                }
-            }
+        this.initBaseModelSubscription();
+        this.addCustomNameValidators();
+        // By default base model is GPT-3.5
+        this.addOpenaiGpt3FormControls();
+        this.generatorJsonlFormGroup.updateValueAndValidity({
+            emitEvent: false
         });
-        // 
-        this.#removeNewLinesSubscription = this.#removeNewLines.valueChanges.pipe(
-            filter(() => !!this.#extractedTextState),
-            map(v => {
-                if (v) {
-                    const copyText = this.#extractedTextState;
-                    return copyText
-                        .replace(/\r?\n|\r/g, " ")
-                        .trim()
-                        .replace(/\. ([a-z])/g, (_, p) => " " + p);
-                }
-                return this.#extractedTextState;
-            }),
-            filter(v => !!v)
-        )
-        .subscribe({
-            next: v => this.#extractedText.patchValue(v)
-        });
+        this.initInstructionSubscription();
+        // Document AI
+        this.initRemoveNewLinesSubscription();
     }
 
     /**
@@ -273,38 +173,62 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     addDataset() {
         // 
-        if (this.generateJSONLStatus == "PROCESS" || this.generateJSONLFormGroup.invalid) {
+        if (this.generatorJsonlStatus == "PROCESS" || this.generatorJsonlFormGroup.invalid) {
             return;
         }
 
-        this.generateJSONLStatus = "PROCESS";
-        this.generateJSONLFormGroup.disable({ emitEvent: false });
+        this.generatorJsonlStatus = "PROCESS";
+        this.generatorJsonlFormGroup.disable({
+            emitEvent: false
+        });
         
-        const { baseModel, name, user, assistant, instruction } = this.generateJSONLFormGroup.getRawValue();
-        const payload = {
-            baseModel,
-            name: String(name.select),
-            instruction: instruction.input,
-            user,
-            assistant
-        };
+        let payload = {};
+
+        const model = this.baseModel.value;
+        const name = this.nameSelect.value as string;
+
+        if (model == "GOOGLE-PALM2-TEXT-BISON") {
+            const { inputText, outputText } = this.googlePalm2TextBison.getRawValue();
+            payload = {
+                baseModel: model,
+                name,
+                inputText,
+                outputText
+            };
+        } else {
+            const { instruction, user, assistant } = this.openaiGpt3.getRawValue();
+            payload = {
+                baseModel: model,
+                name,
+                instruction: instruction.input,
+                user,
+                assistant
+            };
+        }
+
         this.#homeService.addDataset(payload).subscribe({
             next: v => {
-                this.generateJSONLFormGroup.enable({ emitEvent: false });
-                this.#assistant.reset();
-                this.listDataset = v;
-                this.generateJSONLStatus = "DONE";
-                this.#nzNotificationService.success("Generate JSONL", "Dataset has been added", {
+                this.generatorJsonlStatus = "DONE";
+                this.generatorJsonlFormGroup.enable({
+                    emitEvent: false
+                });
+                this.listDatasetName = v;
+                if (model == "GOOGLE-PALM2-TEXT-BISON") {
+                    this.googlePalm2TextBison.get("outputText")?.reset();
+                } else {
+                    this.openaiGpt3.get("assistant")?.reset();
+                }
+                this.#nzNotificationService.success("Dataset has been added", this.emptyRef, {
                     nzCloseIcon: this.emptyRef
                 });
-                this.#throttleSubject.next("HOLD");
             },
             error: e => {
-                this.generateJSONLStatus = "DONE";
-                this.generateJSONLFormGroup.enable({ emitEvent: false });
-                // 
+                this.generatorJsonlStatus = "DONE";
+                this.generatorJsonlFormGroup.enable({
+                    emitEvent: false
+                });
                 const message = e.error.payload as string;
-                this.#nzNotificationService.error("Generate JSONL", message, {
+                this.#nzNotificationService.error(message, this.emptyRef, {
                     nzCloseIcon: this.emptyRef,
                     nzDuration: 7500
                 });
@@ -312,8 +236,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     }
 
-    downloadDataset(name: string) {
-        this.#homeService.downloadDataset(name).subscribe({
+    downloadDataset(model: string, name: string) {
+        this.#homeService.downloadDataset(model, name).subscribe({
             next: v => {
                 const anchor = this.#renderer2.createElement("a") as HTMLAnchorElement;
                 this.#renderer2.setAttribute(anchor, "href", v);
@@ -329,7 +253,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             },
             error: e => {
                 const message = e.error.payload as string;
-                this.#nzNotificationService.error("Generate JSONL", message, {
+                this.#nzNotificationService.error(message, this.emptyRef, {
                     nzCloseIcon: this.emptyRef,
                     nzDuration: 7500
                 });
@@ -337,7 +261,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     }
 
-    removeDataset(name: string) {
+    removeDataset(model: string, name: string) {
         this.#nzModalService.confirm({
             nzTitle: `Do you want to remove <b>${name}</b> dataset?`,
             nzOkText: "REMOVE",
@@ -348,11 +272,20 @@ export class HomeComponent implements OnInit, OnDestroy {
             nzCloseIcon: this.emptyRef,
             nzAutofocus: null,
             nzOnOk: () => {
-                this.#homeService.removeDataset(name).subscribe({
+                this.#homeService.removeDataset(model, name).subscribe({
                     next: () => {
-                        this.listDataset = this.listDataset.filter(v => v != name);
-                        this.listDatasetName = this.listDatasetName.filter(v => v.value != name);
-                        this.#nzNotificationService.blank("Generate JSONL", "Dataset has been removed", {
+                        if (this.baseModel.value == model) {
+                            this.nameSelect.reset(null, { emitEvent: false });
+                        }
+                        this.listDatasetName = this.listDatasetName.map(item => {
+                            item.datasetNames = item.datasetNames.filter(item => item != name);
+                            return item;
+                        });
+                        this.selectListDatasetName = this.selectListDatasetName.map(item => {
+                            item.datasetNames = item.datasetNames.filter(({ value }) => value != name);
+                            return item;
+                        });
+                        this.#nzNotificationService.blank("Dataset has been removed", this.emptyRef, {
                             nzCloseIcon: this.emptyRef
                         });
                     }
@@ -362,31 +295,39 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     createDatasetName() {
-        const value = trim(this.#nameInput.value) || "";
-        if (value == "") {
-            this.#nzNotificationService.error("Dataset Name", "Cannot be empty", {
-                nzCloseIcon: this.emptyRef
-            });
+        if (this.nameInput.hasError("incorrect")) {
             return;
         }
-        const newName = toUpper(snakeCase(value));
-        const newValue = {
-            new: true,
-            label: newName,
-            value: newName
-        };
-        if (this.listDatasetName.some(name => name.value == newName)) {
-            this.#nzNotificationService.error("Dataset Name", `${newName} has been registered`, {
-                nzCloseIcon: this.emptyRef
+        const newName = toUpper(snakeCase(this.nameInput.value));
+        const index = this.selectListDatasetName.findIndex(({ model }) => model == this.baseModel.value);
+        if (index == -1) {
+            this.selectListDatasetName.push({
+                datasetNames: [{
+                    label: newName,
+                    value: newName
+                }],
+                model: this.baseModel.value
             });
-            return;
+        } else {
+            this.selectListDatasetName[index].datasetNames.push({
+                label: newName,
+                value: newName
+            });
         }
-        this.listDatasetName = [...this.listDatasetName, newValue].sort((a, b) => a.value.localeCompare(b.value));
-        this.#nameInput.reset();
+        this.selectListDatasetName = this.selectListDatasetName
+            .sort((a, b) => a.model.localeCompare(b.model))
+            .map(item => {
+                const datasetNames = item.datasetNames.sort((a, b) => a.label.localeCompare(b.label));
+                return {
+                    model: item.model,
+                    datasetNames
+                };
+            });
+        this.nameInput.reset();
     }
 
     onImageSelected(event: Event) {
-        if (this.files.length > 15 || this.imageOCRStatus == "SELECTED") {
+        if (this.files.length > 15 || this.imageOcrStatus == "SELECTED") {
             return;
         }
         const target = event.target as HTMLInputElement;
@@ -404,21 +345,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         for (let i = 0; i < target.files.length; i++) {
             const file = target.files[i];
             if (!filetypesState.includes(file.type)) {
-                this.#nzNotificationService.error("Image OCR", `Invalid file type (${file.name})`, {
+                this.#nzNotificationService.error(`Invalid file type (${file.name})`, this.emptyRef, {
                     nzCloseIcon: this.emptyRef,
                     nzDuration: 7500
                 });
                 break;
             }
             if (file.size > MAX_SIZE) {
-                this.#nzNotificationService.error("Image OCR", `Invalid file size (${file.name})`, {
+                this.#nzNotificationService.error(`Invalid file size (${file.name})`, this.emptyRef, {
                     nzCloseIcon: this.emptyRef,
                     nzDuration: 7500
                 });
                 break;
             }
             if (idsState.includes(file.name + file.size.toString())) {
-                this.#nzNotificationService.info("Image OCR", `File (${file.name}) is ready!`, {
+                this.#nzNotificationService.info(`File (${file.name}) is ready!`, this.emptyRef, {
                     nzCloseIcon: this.emptyRef
                 });
                 break;
@@ -446,13 +387,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     scanImage() {
         // 
-        if (this.files.length == 0 || this.imageOCRStatus == "SELECTED" || this.imageOCRStatus == "DONE") {
+        if (this.files.length == 0 || this.imageOcrStatus == "SELECTED" || this.imageOcrStatus == "DONE") {
             return;
         }
 
         this.imageOCRFormGroup.reset();
 
-        this.imageOCRStatus = "SELECTED";
+        this.imageOcrStatus = "SELECTED";
         this.fileRef.nativeElement.disabled = true;
 
         const formData = new FormData();
@@ -465,21 +406,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.#homeService.scanImage(formData).subscribe({
             next: v => {
                 this.fileRef.nativeElement.disabled = false;
-                this.imageOCRStatus = "DONE";
+                this.imageOcrStatus = "DONE";
                 this.#extractedTextState = v;
                 this.#extractedText.patchValue(v);
                 // 
-                this.#nzNotificationService.success("Image OCR", "Image has been extracted", {
+                this.#nzNotificationService.success("Image has been extracted", this.emptyRef, {
                     nzCloseIcon: this.emptyRef
                 });
             },
             error: e => {
                 this.fileRef.nativeElement.disabled = false;
-                this.imageOCRStatus = "DONE";
+                this.imageOcrStatus = "DONE";
                 this.#extractedTextState = "";
                 // 
                 const message = e.error.payload as string;
-                this.#nzNotificationService.error("Image OCR", message, {
+                this.#nzNotificationService.error(message, this.emptyRef, {
                     nzCloseIcon: this.emptyRef,
                     nzDuration: 7500
                 });
@@ -500,7 +441,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     resetImage() {
         this.files = [];
         this.imagesBase64 = [];
-        this.imageOCRStatus = "IDLE";
+        this.imageOcrStatus = "IDLE";
         this.#extractedTextState = "";
         // 
         this.fileRef.nativeElement.disabled = false;
@@ -512,41 +453,222 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.#removeNewLines.disable();
     }
 
-    private addCustomValidators() {
-        this.#nameSelect.addValidators(control => {
-            const value = trim(control.value);
-            const vSplit = value.split(" ").map(v => v.trim());
-            if (value && vSplit.some(v => v == "")) {
-                return { err: true };
-            }
-            return null;
+    private addOpenaiGpt3FormControls() {
+        this.generatorJsonlFormGroup.addControl("openaiGpt3", new FormGroup({
+            instruction: new FormGroup({
+                check: new FormControl(false, {
+                    nonNullable: true
+                }),
+                input: new FormControl("", {
+                    nonNullable: true,
+                    validators: [
+                        Validators.required,
+                        Validators.minLength(1)
+                    ]
+                })
+            }),
+            user: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.required,
+                    Validators.minLength(1)
+                ]
+            }),
+            assistant: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.required,
+                    Validators.minLength(1)
+                ]
+            })
+        }));
+    }
+
+    private removeOpenaiGpt3FormControls() {
+        this.generatorJsonlFormGroup.removeControl("openaiGpt3", {
+            emitEvent: false
         });
-        // 
-        this.#instructionInput.addValidators(control => {
-            const value = trim(control.value);
-            if (toUpper(value) == "EMPTY" || toUpper(value) == "UNAVAILABLE") {
-                return { err: true };
+    }
+
+    private addGooglePalm2TextBisonFormControls() {
+        this.generatorJsonlFormGroup.addControl("googlePalm2TextBison", new FormGroup({
+            inputText: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.required,
+                    Validators.minLength(1)
+                ]
+            }),
+            outputText: new FormControl("", {
+                nonNullable: true,
+                validators: [
+                    Validators.required,
+                    Validators.minLength(1)
+                ]
+            })
+        }));
+    }
+
+    private removeGooglePalm2TextBisonFormControls() {
+        this.generatorJsonlFormGroup.removeControl("googlePalm2TextBison", {
+            emitEvent: false
+        });
+    }
+
+    private addCustomNameValidators() {
+        this.nameInput.addValidators(control => {
+            const name = trim(toUpper(snakeCase(control.value)));
+            const names = this.listDatasetName
+                .filter(({ model }) => model == this.baseModel.value)
+                .map(({ datasetNames }) => datasetNames)[0];
+            if (names.length == 0) {
+                return null;
+            }
+            const match = names.some(item => item == name);
+            if (match) {
+                return { incorrect: true };
             }
             return null;
         });
     }
 
-    private initInstructionState() {
+    private initInstructionSubscription() {
         const instruction = this.#route.snapshot.data["home"]["instruction"] as string;
+        const instructionCheck = this.openaiGpt3.get("instruction")?.get("check")! as AbstractControl<boolean>;
+        const instructionInput = this.openaiGpt3.get("instruction")?.get("input")! as AbstractControl<string>;
         switch(instruction) {
             case "EMPTY":
-                this.#instructionCheck.patchValue(true, { emitEvent: false });
-                this.#instructionCheck.markAllAsTouched();
+                instructionCheck.patchValue(true, { emitEvent: false });
+                instructionCheck.markAllAsTouched();
                 break;
             case "UNAVAILABLE":
                 noop();
                 break;
             default:
-                this.#instructionInput.patchValue(instruction, { emitEvent: false });
-                this.#instructionInput.markAllAsTouched();
-                this.#instructionCheck.patchValue(true, { emitEvent: false });
-                this.#instructionCheck.markAllAsTouched();
-                break;
+                instructionInput.patchValue(instruction, { emitEvent: false });
+                instructionInput.markAllAsTouched();
+                instructionCheck.patchValue(true, { emitEvent: false });
+                instructionCheck.markAllAsTouched();
         }
+        instructionInput.addValidators(control => {
+            const value = trim(control.value);
+            if (toUpper(value) == "EMPTY" || toUpper(value) == "UNAVAILABLE") {
+                return { incorrect: true };
+            }
+            return null;
+        });
+        this.#instructionSaveSubscription = instructionCheck.valueChanges.pipe(
+            distinctUntilChanged(),
+            switchMap(v => {
+                if (v) {
+                    return this.#homeService.saveInstructionState(instructionInput?.value || "").pipe(
+                        map(() => v)
+                    );
+                }
+                return this.#homeService.removeInstructionState().pipe(
+                    map(() => v)
+                );
+            })
+        )
+        .subscribe({
+            next: v => {
+                if (v) {
+                    this.#nzNotificationService.success("Generate JSONL", "Instruction storage has been enabled", {
+                        nzCloseIcon: this.emptyRef
+                    });
+                } else {
+                    this.#nzNotificationService.blank("Generate JSONL", "Instruction storage has been disabled", {
+                        nzCloseIcon: this.emptyRef
+                    });
+                }
+            }
+        });
+        this.#instructionSubscription = instructionInput.valueChanges.pipe(
+            filter(() => !!instructionCheck.value && instructionInput.valid),
+            debounceTime(100),
+            switchMap(v => this.#homeService.saveInstructionState(v).pipe(
+                map(() => null)
+            ))
+        )
+        .subscribe(noop);
+    }
+
+    private initBaseModelSubscription() {
+        const model = this.#route.snapshot.queryParamMap.get("model");
+        if (model) {
+            const match = this.listDatasetName.some(item => item.model == model);
+            if (match) {
+                this.baseModel.patchValue(model as BaseModel);
+            }
+        }
+        this.#baseModelSubscription = this.baseModel.valueChanges.pipe(
+            distinctUntilChanged()
+        )
+        .subscribe({
+            next: model => {
+                this.nameSelect.patchValue(null, { emitEvent: false });
+                if (model == "GOOGLE-PALM2-CHAT-BISON") {
+                    noop();
+                } else if (model == "GOOGLE-PALM2-TEXT-BISON") {
+                    this.#instructionSaveSubscription?.unsubscribe();
+                    this.#instructionSaveSubscription = null;
+                    this.#instructionSubscription?.unsubscribe();
+                    this.#instructionSubscription = null;
+                    this.removeOpenaiGpt3FormControls();
+                    this.addGooglePalm2TextBisonFormControls();
+                    this.generatorJsonlFormGroup.updateValueAndValidity({
+                        emitEvent: false
+                    });
+                } else {
+                    this.removeGooglePalm2TextBisonFormControls();
+                    this.addOpenaiGpt3FormControls();
+                    this.generatorJsonlFormGroup.updateValueAndValidity({
+                        emitEvent: false
+                    });
+                    // Reinitialize
+                    this.initInstructionSubscription();
+                }
+            }
+        });
+    }
+
+    private initRemoveNewLinesSubscription() {
+        this.#removeNewLinesSubscription = this.#removeNewLines.valueChanges.pipe(
+            filter(() => !!this.#extractedTextState),
+            map(v => {
+                if (v) {
+                    const copyText = this.#extractedTextState;
+                    return copyText
+                        .replace(/\r?\n|\r/g, " ")
+                        .trim()
+                        .replace(/\. ([a-z])/g, (_, p) => " " + p);
+                }
+                return this.#extractedTextState;
+            }),
+            filter(v => !!v)
+        )
+        .subscribe({
+            next: v => this.#extractedText.patchValue(v)
+        });
+    }
+
+    get baseModel() {
+        return this.generatorJsonlFormGroup.get("baseModel")!;
+    }
+
+    get nameSelect() {
+        return this.generatorJsonlFormGroup.get("name")?.get("select")!;
+    }
+
+    get nameInput() {
+        return this.generatorJsonlFormGroup.get("name")?.get("input")!;
+    }
+
+    private get googlePalm2TextBison() {
+        return this.generatorJsonlFormGroup.get("googlePalm2TextBison")! as FormGroup<GeneratorGooglePalm2TextBisonFormControls>;
+    }
+
+    private get openaiGpt3() {
+        return this.generatorJsonlFormGroup.get("openaiGpt3")! as FormGroup<GeneratorOpenaiGpt3FormControls>;
     }
 }

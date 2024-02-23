@@ -4,35 +4,44 @@
             <!-- Grid 1 -->
             <div class="app-margin-auto">
                 <div class="app-text-center">
-                    <h1 nz-typography class="app-margin-remove">Generate JSONL</h1>
+                    <h1 nz-typography class="app-margin-remove">JSONL Generator</h1>
                     <p nz-typography class="app-margin-remove">Prepare and upload training data. This tool seamlessly transforms form data into the JSON Lines format.</p>
                 </div>
-                <form (ngSubmit)="addDataset()" [formGroup]="generateJSONLFormGroup" class="app-margin">
+                <form (ngSubmit)="addDataset()" [formGroup]="generatorJsonlFormGroup" class="app-margin">
                     <div class="app-margin">
                         <div class="app-margin-xsmall-bottom">
                             <b nz-typography>Base Model</b>
                         </div>
-                        <nz-select [formControlName]="'baseModel'" style="width: 150px;">
-                            <nz-option [nzLabel]="'PaLM 2 for Text'" [nzValue]="'GOOGLE-TEXT-BISON'" [nzDisabled]="true"></nz-option>
-                            <nz-option [nzLabel]="'PaLM 2 for Chat'" [nzValue]="'GOOGLE-CHAT-BISON'" [nzDisabled]="true"></nz-option>
-                            <nz-option [nzLabel]="'GPT-3.5'" [nzValue]="'OPENAI'"></nz-option>
-                        </nz-select>
+                        <div class="app-margin-xsmall-bottom">
+                            <nz-select [formControlName]="'baseModel'" style="width: 300px;">
+                                <nz-option [nzLabel]="'Google &ndash; PaLM 2 for Chat (Chat-Bison)'" [nzValue]="'GOOGLE-PALM2-CHAT-BISON'" [nzDisabled]="true"></nz-option>
+                                <nz-option [nzLabel]="'Google &ndash; PaLM 2 for Text (Text-Bison)'" [nzValue]="'GOOGLE-PALM2-TEXT-BISON'"></nz-option>
+                                <nz-option [nzLabel]="'OpenAI &ndash; GPT-3.5'" [nzValue]="'OPENAI-GPT-3.5'"></nz-option>
+                            </nz-select>
+                        </div>
+                        @switch (baseModel.value) {
+                            @case ("GOOGLE-PALM2-TEXT-BISON") {
+                                <div nz-typography [nzType]="'secondary'">
+                                    <p class="app-margin-remove">Visit <a href="https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-text-models-supervised#prepare_a_supervised_tuning_dataset" target="_blank" rel="noopener noreferrer">Vertex AI</a> for more information</p>
+                                </div>
+                            } @default {
+                                <div nz-typography [nzType]="'secondary'">
+                                    <p class="app-margin-remove">Visit <a href="https://platform.openai.com/docs/guides/fine-tuning/preparing-your-dataset" target="_blank" rel="noopener noreferrer">OpenAI</a> for more information</p>
+                                </div>
+                            }
+                        }
                     </div>
                     <div [formGroupName]="'name'" class="app-margin">
                         <div class="app-margin-xsmall-bottom">
                             <b nz-typography>Name</b>
                         </div>
                         <nz-select [formControlName]="'select'" [nzAllowClear]="true" [nzPlaceHolder]="'Select'" [nzDropdownRender]="createNewOneRef" style="width: 100%;">
-                            @for (dataset of listDatasetName; track dataset.value) {
-                                @if (dataset.new) {
-                                    <nz-option [nzCustomContent]="true" [nzLabel]="dataset.label" [nzValue]="dataset.value">
-                                        <nz-badge [nzDot]="true">
-                                            <span>{{ dataset.label }}</span>
-                                        </nz-badge>
-                                    </nz-option>
-                                } @else {
-                                    <nz-option [nzLabel]="dataset.label" [nzValue]="dataset.value"></nz-option>
-                                }
+                            @for (item of selectListDatasetName; track item.model) {
+                                <nz-option-group [nzLabel]="item.model | modelName">
+                                    @for (name of item.datasetNames; track name.value) {
+                                        <nz-option [nzLabel]="name.label" [nzValue]="name.value" [nzDisabled]="item.model != baseModel.value"></nz-option>
+                                    }
+                                </nz-option-group>
                             }
                         </nz-select>
                         <!-- Dropdown creator -->
@@ -41,60 +50,91 @@
                             <div class="app-container-cnoref">
                                 <input #inputElement nz-input [formControlName]="'input'" type="text" placeholder="Math tutor" spellcheck="false" autocomplete="off" minlength="3" maxlength="64">
                                 <div class="app-create-cnoref">
-                                    <button (click)="createDatasetName()" nz-button [nzType]="'default'" type="button" tabindex="-1">
+                                    <button (click)="createDatasetName()" nz-button [nzType]="'default'" [disabled]="nameInput.hasError('incorrect')" type="button" tabindex="-1">
                                         <b>CREATE</b>
                                     </button>
                                 </div>
                             </div>
                         </ng-template>
                     </div>
-                    <div [formGroupName]="'instruction'" class="app-margin">
-                        <div class="app-margin-xsmall-bottom">
-                            <div>
-                                <label nz-checkbox [formControlName]="'check'">
-                                    <b nz-typography>{{ generateJSONLT1 }}</b>
-                                </label>
-                            </div>
-                            <span nz-typography [nzType]="'secondary'">Check to save instructions</span>
-                        </div>
-                        <textarea nz-input [formControlName]="'input'" placeholder="You are a personal math tutor. I will provide some mathematical equations or concepts, and it will be your job to explain them in easy-to-understand terms" rows="4" spellcheck="true" autocomplete="off" required></textarea>
-                    </div>
-                    <div class="app-margin">
-                        <div class="app-margin-xsmall-bottom">
-                            <b nz-typography>{{ generateJSONLT2 }}</b>
-                        </div>
-                        <textarea nz-input [formControlName]="'user'" rows="4" spellcheck="true" autocomplete="off" required></textarea>
-                    </div>
-                    <div class="app-margin">
-                        <div class="app-margin-xsmall-bottom">
-                            <b nz-typography>{{ generateJSONLT3 }}</b>
-                        </div>
-                        <textarea nz-input [formControlName]="'assistant'" rows="8" spellcheck="true" autocomplete="off" required></textarea>
-                    </div>
+                    @switch (baseModel.value) {
+                        @case ("GOOGLE-PALM2-TEXT-BISON") {
+                            <ng-container [formGroupName]="'googlePalm2TextBison'">
+                                <div class="app-margin">
+                                    <div class="app-margin-xsmall-bottom">
+                                        <b nz-typography>Input</b>
+                                    </div>
+                                    <div class="app-margin-xsmall-bottom">
+                                        <textarea nz-input [formControlName]="'inputText'" placeholder="question:...? context:..." rows="8" spellcheck="true" autocomplete="off" required></textarea>
+                                    </div>
+                                    <div nz-typography [nzType]="'secondary'">
+                                        <p class="app-margin-remove">Some <a href="https://drive.google.com/file/d/1cxc4ArEN2XZTABW1zvLMR3tAS4_xqKLf/view?usp=drive_link" target="_blank" rel="noopener noreferrer">examples</a> of sample dataset</p>
+                                    </div>
+                                </div>
+                                <div class="app-margin">
+                                    <div class="app-margin-xsmall-bottom">
+                                        <b nz-typography>Output</b>
+                                    </div>
+                                    <textarea nz-input [formControlName]="'outputText'" rows="8" spellcheck="true" autocomplete="off" required></textarea>
+                                </div>
+                            </ng-container>
+                        } @default {
+                            <ng-container [formGroupName]="'openaiGpt3'">
+                                <div [formGroupName]="'instruction'" class="app-margin">
+                                    <div class="app-margin-xsmall-bottom">
+                                        <div>
+                                            <label nz-checkbox [formControlName]="'check'">
+                                                <b nz-typography>System Instructions</b>
+                                            </label>
+                                        </div>
+                                        <span nz-typography [nzType]="'secondary'">Check to save instructions</span>
+                                    </div>
+                                    <textarea nz-input [formControlName]="'input'" placeholder="You are a personal math tutor. I will provide some mathematical equations or concepts, and it will be your job to explain them in easy-to-understand terms" rows="5" spellcheck="true" autocomplete="off" required></textarea>
+                                </div>
+                                <div class="app-margin">
+                                    <div class="app-margin-xsmall-bottom">
+                                        <b nz-typography>User</b>
+                                    </div>
+                                    <textarea nz-input [formControlName]="'user'" rows="5" spellcheck="true" autocomplete="off" required></textarea>
+                                </div>
+                                <div class="app-margin">
+                                    <div class="app-margin-xsmall-bottom">
+                                        <b nz-typography>Assistant</b>
+                                    </div>
+                                    <textarea nz-input [formControlName]="'assistant'" rows="8" spellcheck="true" autocomplete="off" required></textarea>
+                                </div>
+                            </ng-container>
+                        }
+                    }
                     <div class="app-text-center">
-                        <button nz-button [nzType]="'primary'" [disabled]="generateJSONLStatus == 'PROCESS' || generateJSONLFormGroup.invalid">
+                        <button nz-button [nzType]="'primary'" [disabled]="generatorJsonlStatus == 'PROCESS' || generatorJsonlFormGroup.invalid">
                             <b>ADD</b>
                         </button>
                     </div>
                 </form>
-                @if (listDataset.length) {
-                    <h3 nz-typography>List Dataset</h3>
+                @if (listDatasetName.length) {
+                    <h3 nz-typography>Dataset</h3>
+                }
+                @for (item of listDatasetName; track $index) {
+                    <div class="app-margin-xsmall-bottom">
+                        <b nz-typography [nzType]="'secondary'">{{ item.model | modelName }}</b>
+                    </div>
                     <ul>
-                        @for (dataset of listDataset; track $index; let isLast = $last) {
+                        @for (name of item.datasetNames; track $index; let isLast = $last) {
                             <li [ngClass]="{ 'app-margin-small': !isLast }">
                                 <nz-space [nzAlign]="'center'">
                                     <span *nzSpaceItem>
-                                        <button (click)="downloadDataset(dataset)" nz-button [nzSize]="'small'" title="Download Dataset" tabindex="-1">
+                                        <button (click)="downloadDataset(item.model, name)" nz-button [nzSize]="'small'" title="Download Dataset" tabindex="-1">
                                             <span nz-icon [nzType]="'download'"></span>
                                         </button>
                                     </span>
                                     <span *nzSpaceItem>
-                                        <button (click)="removeDataset(dataset)" nz-button [nzType]="'primary'" [nzDanger]="true" [nzSize]="'small'" title="Remove Dataset" type="reset" tabindex="-1">
+                                        <button (click)="removeDataset(item.model, name)" nz-button [nzType]="'primary'" [nzDanger]="true" [nzSize]="'small'" title="Remove Dataset" type="reset" tabindex="-1">
                                             <span nz-icon [nzType]="'delete'"></span>
                                         </button>
                                     </span>
                                     <span *nzSpaceItem nz-typography>
-                                        <a [routerLink]="['storage', 'dataset', dataset]">{{ dataset }}</a>
+                                        <a [routerLink]="['storage', 'dataset', item.model | lowercase, name | lowercase]">{{ name }}</a>
                                     </span>
                                 </nz-space>
                             </li>
@@ -108,14 +148,14 @@
                     <h1 nz-typography class="app-margin-remove">Image OCR</h1>
                     <p nz-typography class="app-margin-remove">Identify and extract text in different types of images.</p>
                 </div>
-                <nz-spin [nzSpinning]="imageOCRStatus == 'SELECTED'" [nzTip]="'Please wait'">
+                <nz-spin [nzSpinning]="imageOcrStatus == 'SELECTED'" [nzTip]="'Please wait'">
                     <form [formGroup]="imageOCRFormGroup" class="app-margin" enctype="multipart/form-data">
                         <div class="app-margin-small app-text-center">
                             <input #fileRef (change)="onImageSelected($event)" type="file" name="files" accept=".gif,.jpg,.jpeg,.png,.webp" size="19922944" multiple hidden>
                             <div class="app-margin-small">
                                 <nz-space [nzAlign]="'center'" [nzSize]="6">
                                     <span *nzSpaceItem>
-                                        @if (imageOCRStatus == "IDLE") {
+                                        @if (imageOcrStatus == "IDLE") {
                                             <button (click)="fileRef.click()" nz-button [disabled]="files.length == 15" style="width: 100px;" tabindex="-1">
                                                 <b>SELECT</b>
                                             </button>
@@ -124,13 +164,13 @@
                                                 (click)="resetImage()" 
                                                 [nzType]="'primary'"
                                                 [nzDanger]="true" 
-                                                [disabled]="imageOCRStatus != 'DONE' && imageOCRStatus != 'ERROR'" title="Reset" type="reset" style="width: 100px;" tabindex="-1">
+                                                [disabled]="imageOcrStatus != 'DONE' && imageOcrStatus != 'ERROR'" title="Reset" type="reset" style="width: 100px;" tabindex="-1">
                                                 <b>RESET</b>
                                             </button>
                                         }
                                     </span>
                                     <span *nzSpaceItem>
-                                        <button (click)="scanImage()" nz-button [nzType]="'primary'" [disabled]="files.length == 0 || imageOCRStatus == 'DONE'" style="width: 100px;" tabindex="-1">
+                                        <button (click)="scanImage()" nz-button [nzType]="'primary'" [disabled]="files.length == 0 || imageOcrStatus == 'DONE'" style="width: 100px;" tabindex="-1">
                                             <b>SCAN</b>
                                         </button>
                                     </span>
@@ -143,7 +183,7 @@
                         <div class="app-margin-small-bottom">
                             <div class="app-margin-xsmall-bottom">
                                 <div>
-                                    <label nz-checkbox [formControlName]="'removeNewLines'" [nzDisabled]="imageOCRStatus != 'DONE'">
+                                    <label nz-checkbox [formControlName]="'removeNewLines'" [nzDisabled]="imageOcrStatus != 'DONE'">
                                         <b nz-typography>Remove newlines</b>
                                     </label>
                                 </div>

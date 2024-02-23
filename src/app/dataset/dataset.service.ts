@@ -8,18 +8,20 @@ export class DatasetService {
 
     readonly #http = inject(HttpClient);
 
-    getDataset(name: string) {
-        if (name == "") {
+    getDataset(model: string, name: string) {
+        if (model == "" || name == "") {
             return of("");
         }
-        return this.#http.get<{ payload: string }>("/dataset/" + name).pipe(
+        const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
+        return this.#http.get<{ payload: string }>("/" + path.join("/")).pipe(
             map(v => v.payload),
             take(1)
         );
     }
 
-    replaceDataset(name: string, content: string) {
-        return this.#http.patch("/dataset/" + name, { content }).pipe(
+    replaceDataset(model: string, name: string, content: string) {
+        const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
+        return this.#http.patch("/" + path.join("/"), { content }).pipe(
             take(1)
         );
     }

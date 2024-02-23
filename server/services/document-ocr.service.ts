@@ -11,12 +11,6 @@ import { HttpException } from "./exception-filter.service";
 import { logError } from "./logger.service";
 import { env } from "server";
 
-type IProcessReqRes = [
-    google.cloud.documentai.v1.IProcessResponse,
-    google.cloud.documentai.v1.IProcessRequest | undefined,
-    {} | undefined
-]
-
 export function scanImage(files: Array<Express.Multer.File>) {
     const {
         GCP_PROJECT_ID,

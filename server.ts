@@ -30,15 +30,8 @@ import { REQUEST, RESPONSE } from "./src/express.tokens";
 
 import bootstrap from "./src/main.server";
 
-export type SafeAny = any;
-export type EnvVar = {
-    [f: string]: string;
-}
-export type BaseModel = "GOOGLE-TEXT-BISON" | "GOOGLE-CHAT-BISON" | "OPENAI";
-
 export const env = new BehaviorSubject<EnvVar>({});
 
-// The Express app is exported so that it can be used by serverless Functions.
 export function app() {
     const server = express();
     const browserDir = join(cwd(), "dist/fine-tune-forge/browser");
@@ -89,16 +82,11 @@ export function app() {
             httpOnly: true,
             secure: CSRF_KEY.includes("__Host-"),
             signed: CSRF_KEY.includes("__Host-"),
-            // Prefix your cookies on production with "__Host-"
-            // This prefix doesn’t allow subdomains or other domains to overwrite your cookies if they don’t set the cookie previously
-            // Source: https://dev-academy.com/csurf-vulnerability
             key: CSRF_KEY || "_CSRF"
         },
         value: req => String(req.headers["x-xftf-cre"])
     }));
     server.use((req, res, next) => {
-        // WARNING!
-        // Prefix your cookies on production with "__Host-"
         res.cookie("X-Ftf-Token", req.csrfToken(), {
             sameSite: "strict",
             secure: CSRF_KEY.includes("__Host-")
@@ -111,11 +99,11 @@ export function app() {
 
     // Controller
     server.get("/dataset", getAllDatasetController);
-    server.get("/dataset/:name", getDatasetController);
-    server.patch("/dataset/:name", [headerApi], replaceDatasetController);
+    server.get("/dataset/:model/:name", getDatasetController);
+    server.patch("/dataset/:model/:name", [headerApi], replaceDatasetController);
     server.post("/add/dataset", [headerApi], addDatasetController);
-    server.post("/download/dataset/:name", [headerApi], downloadDatasetController);
-    server.delete("/dataset/:name", [headerApi], removeDatasetController);
+    server.post("/download/dataset/:model/:name", [headerApi], downloadDatasetController);
+    server.delete("/dataset/:model/:name", [headerApi], removeDatasetController);
     // 
     server.get("/instruction", getInstructionStateController);
     server.post("/save/instruction", [headerApi], saveInstructionStateController);

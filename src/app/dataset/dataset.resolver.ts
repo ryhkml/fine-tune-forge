@@ -1,27 +1,31 @@
 import { inject } from "@angular/core";
 import { ResolveFn } from '@angular/router';
 
-import { snakeCase, toUpper } from "lodash";
-import { map } from "rxjs";
+import { catchError, map, of } from "rxjs";
 
 import { DatasetService } from "./dataset.service";
 
-import { OpenAIDataset } from "server/services/jsonl.service";
-
-export type ResolveDataset = {
-    name: string;
-    content: Array<OpenAIDataset>;
-}
-
 export const datasetResolver: ResolveFn<ResolveDataset> = (route, _) => {
+    const models = ["GOOGLE-PALM2-CHAT-BISON", "GOOGLE-PALM2-TEXT-BISON", "OPENAI-GPT-3.5"];
+    let model = route.paramMap.get("model") as BaseModel;
+    if (!models.includes(model.toUpperCase())) {
+        // @ts-ignore
+        model = null;
+    }
     const name = route.paramMap.get("name") || "";
     const datasetService = inject(DatasetService);
-    return datasetService.getDataset(name).pipe(
-        map(content => ({
-            name: toUpper(snakeCase(name)),
-            content: content == ""
-                ? [] as Array<OpenAIDataset>
-                : content.split("\n").map(v => JSON.parse(v)) as Array<OpenAIDataset>
+    return datasetService.getDataset(model, name).pipe(
+        map(dataset => ({
+            name,
+            model,
+            dataset: dataset == ""
+                ? []
+                : dataset.split("\n").map(item => JSON.parse(item))
+        })),
+        catchError(() => of({
+            name,
+            model,
+            dataset: []
         }))
     );
 };

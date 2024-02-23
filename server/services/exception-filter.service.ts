@@ -1,5 +1,3 @@
-import { SafeAny } from "server";
-
 export class HttpException extends Error {
     
     statusCode;

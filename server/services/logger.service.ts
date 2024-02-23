@@ -1,5 +1,3 @@
-import { SafeAny } from "server";
-
 import chalk from "chalk";
 
 export function logInfo(message: SafeAny) {

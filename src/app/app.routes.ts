@@ -10,7 +10,7 @@ import { HomeService } from "./home/home.service";
 
 export const routes: Routes = [
     {
-        path: "storage/dataset/:name",
+        path: "storage/dataset/:model/:name",
         resolve: {
             dataset: datasetResolver
         },

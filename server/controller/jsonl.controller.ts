@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { take } from "rxjs";
 
-import { addOpenAIDataset, downloadDataset, getInstructionState, getAllDataset, getDataset, removeDataset, removeInstructionState, replaceDataset, saveInstructionState } from "server/services/jsonl.service";
+import { addDataset, downloadDataset, getInstructionState, getAllDataset, getDataset, removeDataset, removeInstructionState, replaceDataset, saveInstructionState } from "server/services/jsonl.service";
 
 export function addDatasetController(req: Request, res: Response, _: NextFunction) {
-    addOpenAIDataset(req.body).pipe(
+    addDataset(req.body).pipe(
         take(1)
     )
     .subscribe({
@@ -14,7 +14,7 @@ export function addDatasetController(req: Request, res: Response, _: NextFunctio
 }
 
 export function downloadDatasetController(req: Request, res: Response, _: NextFunction) {
-    downloadDataset(req.params["name"]).pipe(
+    downloadDataset(req.params["model"], req.params["name"]).pipe(
         take(1)
     )
     .subscribe({
@@ -27,7 +27,7 @@ export function downloadDatasetController(req: Request, res: Response, _: NextFu
 }
 
 export function removeDatasetController(req: Request, res: Response, _: NextFunction) {
-    removeDataset(req.params["name"]).pipe(
+    removeDataset(req.params["model"], req.params["name"]).pipe(
         take(1)
     )
     .subscribe({
@@ -36,7 +36,7 @@ export function removeDatasetController(req: Request, res: Response, _: NextFunc
 }
 
 export function getDatasetController(req: Request, res: Response, __: NextFunction) {
-    getDataset(req.params["name"]).pipe(
+    getDataset(req.params["model"], req.params["name"]).pipe(
         take(1)
     )
     .subscribe({
@@ -55,7 +55,7 @@ export function getAllDatasetController(_: Request, res: Response, __: NextFunct
 }
 
 export function replaceDatasetController(req: Request, res: Response, _: NextFunction) {
-    replaceDataset(req.params["name"], req.body["content"]).pipe(
+    replaceDataset(req.params["model"], req.params["name"], req.body["content"]).pipe(
         take(1)
     )
     .subscribe({

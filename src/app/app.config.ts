@@ -28,8 +28,6 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(
             withFetch(),
             withXsrfConfiguration({
-                // WARNING!
-                // Prefix your cookies on production with "__Host-"
                 cookieName: "X-Ftf-Token",
                 headerName: "X-Xftf-Cre"
             }),

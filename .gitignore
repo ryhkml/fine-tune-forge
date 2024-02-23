@@ -1,6 +1,6 @@
-DATADOC_OCR/*.jsonl
-DATASET/*.jsonl
-DATATMP/*.state
+DATADOC_OCR/**/*.jsonl
+DATASET/**/*.jsonl
+DATATMP/**/*.state
 
 node_modules/
 dist/
