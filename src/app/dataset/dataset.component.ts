@@ -204,10 +204,10 @@ export class DatasetComponent implements OnInit, OnDestroy {
             }
         }
 
-        this.assignEditorFormGroup(this.baseModel);
         this.editorJsonlFormGroup.updateValueAndValidity({
             emitEvent: false
         });
+        this.assignEditorFormGroup(this.baseModel);
 
         const sourceValueChanges$ = () => {
             if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
@@ -231,23 +231,21 @@ export class DatasetComponent implements OnInit, OnDestroy {
                 return this.openaiGpt3.valueChanges;
             })),
             debounceTime(100),
-            map(item => {
-                let newItem = [] as Array<{ [f: string]: any }>;
-                if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
-                    // @ts-ignore
-                    newItem = item!.map(({ inputText, outputText }) => {
-                        if (inputText && outputText) {
-                            return {
-                                input_text: inputText.replace(/"/g, '\"').trim(),
-                                output_text: outputText.replace(/"/g, '\"').trim()
-                            };
-                        }
-                        return {};
-                    });
-                } else {
-                    // @ts-ignore
-                    newItem = item!.map(({ messages }) => {
-                        if (messages?.instruction && messages.user && messages.assistant) {
+            map(items => {
+                const datasetPartial = () => {
+                    if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
+                        return (items as Array<Partial<EditorGooglePalm2TextBisonRawValue>>)
+                            .filter(({ inputText, outputText }) => !!inputText && !!outputText)
+                            .map(({ inputText, outputText }) => {
+                                return {
+                                    input_text: inputText!.replace(/"/g, '\"').trim(),
+                                    output_text: outputText!.replace(/"/g, '\"').trim()
+                                };
+                            });
+                    }
+                    return (items as Array<EditorOpenaiGpt3RawValue>)
+                        .filter(({ messages }) => !!messages?.instruction && !!messages?.user && !!messages?.assistant)
+                        .map(({ messages }) => {
                             return {
                                 messages: [
                                     {
@@ -264,12 +262,9 @@ export class DatasetComponent implements OnInit, OnDestroy {
                                     }
                                 ]
                             };
-                        }
-                        return {};
-                    });
+                        });
                 }
-                return newItem
-                    .filter(item => this.hasObjectLength(item))
+                return datasetPartial()
                     .map(item => {
                         return JSON.stringify(item)
                             .replace(/":/g, "\": ")
@@ -279,7 +274,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
                     .join("\n");
             }),
             distinctUntilChanged(),
-            switchMap(v => this.#datasetService.replaceDataset(this.baseModel, name, v).pipe(
+            switchMap(dataset => this.#datasetService.replaceDataset(this.baseModel, name, dataset).pipe(
                 map(() => null)
             ))
         )
@@ -333,10 +328,6 @@ export class DatasetComponent implements OnInit, OnDestroy {
             return !!this.googlePalm2TextBison.at(index).get("metadata")?.get("edit")?.value;
         }
         return !!this.openaiGpt3.at(index).get("metadata")?.get("edit")?.value;
-    }
-
-    private hasObjectLength(object: { [f: string]: any }) {
-        return !!Object.keys(object).length;
     }
 
     private assignEditorFormGroup(model: BaseModel) {

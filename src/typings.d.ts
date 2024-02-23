@@ -126,6 +126,11 @@ declare global {
     }
 
     // Dataset Component
+    interface EditorJsonlMetadataRawValue {
+        metadata: {
+            edit: boolean;
+        };
+    }
     interface EditorJsonlMetadata {
         metadata: FormGroup<{
             edit: FormControl<boolean>;
@@ -146,9 +151,20 @@ declare global {
             content: FormControl<string>;
         }>>;
     }
+    interface EditorGooglePalm2TextBisonRawValue extends EditorJsonlMetadataRawValue {
+        inputText: string;
+        outputText: string;
+    }
     interface EditorGooglePalm2TextBisonFormControls extends EditorJsonlMetadata {
         inputText: FormControl<string>;
         outputText: FormControl<string>;
+    }
+    interface EditorOpenaiGpt3RawValue extends EditorJsonlMetadataRawValue {
+        messages: {
+            instruction: string;
+            user: string;
+            assistant: string;
+        };
     }
     interface EditorOpenaiGpt3FormControls extends EditorJsonlMetadata {
         messages: FormGroup<{
