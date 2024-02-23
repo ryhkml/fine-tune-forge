@@ -76,7 +76,7 @@ COPY --from=build --chown=node:node /app/node_modules ./node_modules/
 COPY --from=build --chown=node:node /app/dist ./dist/
 COPY --from=build --chown=node:node /app/tls ./tls/
 COPY --chown=node:node DATADOC_OCR/.gitkeep ./DATADOC_OCR/
-COPY --chown=node:node DATASET/.gitkeep ./DATASET/
+COPY --chown=node:node DATASET ./DATASET/
 COPY --chown=node:node DATATMP/.gitkeep ./DATATMP/
 
 USER node
