@@ -23,6 +23,7 @@
         "PaLM 2",
         "GPT-3.5"
     ],
+    "private": true,
     "scripts": {
         "ng": "ng",
         "start": "ng serve",

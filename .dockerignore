@@ -6,3 +6,11 @@ docker-compose*
 cosign*
 
 node_modules/
+
+DATADOC_OCR/*.gif
+DATADOC_OCR/*.jpg
+DATADOC_OCR/*.jpeg
+DATADOC_OCR/*.png
+DATADOC_OCR/*.webp
+DATASET/**/*.jsonl
+DATASET/*.state

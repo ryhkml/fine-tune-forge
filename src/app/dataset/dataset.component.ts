@@ -234,12 +234,12 @@ export class DatasetComponent implements OnInit, OnDestroy {
             map(items => {
                 const datasetPartial = () => {
                     if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
-                        return (items as Array<Partial<EditorGooglePalm2TextBisonRawValue>>)
+                        return (items as Array<EditorGooglePalm2TextBisonRawValue>)
                             .filter(({ inputText, outputText }) => !!inputText && !!outputText)
                             .map(({ inputText, outputText }) => {
                                 return {
-                                    input_text: inputText!.replace(/"/g, '\"').trim(),
-                                    output_text: outputText!.replace(/"/g, '\"').trim()
+                                    input_text: inputText.replace(/"/g, '\"').trim(),
+                                    output_text: outputText.replace(/"/g, '\"').trim()
                                 };
                             });
                     }

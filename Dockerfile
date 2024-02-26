@@ -67,7 +67,6 @@ ENV YARN_VERSION=
 
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache dumb-init && \
     rm -rf /var/cache/apk/* /tmp/* /usr/local/*.md /usr/local/LICENSE /usr/local/bin/npm /usr/local/bin/npx /opt/yarn* /usr/local/bin/yarn /usr/local/bin/yarnpkg /usr/local/bin/corepack /usr/local/lib/node_modules
 
 WORKDIR /app
@@ -75,14 +74,12 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/node_modules ./node_modules/
 COPY --from=build --chown=node:node /app/dist ./dist/
 COPY --from=build --chown=node:node /app/tls ./tls/
-COPY --chown=node:node DATADOC_OCR/.gitkeep ./DATADOC_OCR/
+COPY --chown=node:node DATADOC_OCR ./DATADOC_OCR/
 COPY --chown=node:node DATASET ./DATASET/
-COPY --chown=node:node DATATMP/.gitkeep ./DATATMP/
+COPY --chown=node:node DATATMP ./DATATMP/
 
 USER node
 
 EXPOSE 12400
-
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 CMD ["node", "/app/dist/fine-tune-forge/server/main.js"]
