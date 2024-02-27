@@ -33,7 +33,6 @@ export const routes: Routes = [
     },
     {
         path: "**",
-        loadComponent: () => import("./error/error.component")
-            .then(c => c.ErrorComponent)
+        redirectTo: "/"
     }
 ];
