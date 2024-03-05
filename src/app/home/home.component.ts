@@ -534,8 +534,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     private initInstructionSubscription() {
         const instruction = this.#route.snapshot.data["home"]["instruction"] as string;
-        const instructionCheck = this.openaiGpt3.get("instruction")?.get("check")! as AbstractControl<boolean>;
-        const instructionInput = this.openaiGpt3.get("instruction")?.get("input")! as AbstractControl<string>;
+        const instructionCheck = this.openaiGpt3.get("instruction")?.get("check") as AbstractControl<boolean>;
+        const instructionInput = this.openaiGpt3.get("instruction")?.get("input") as AbstractControl<string>;
         switch(instruction) {
             case "EMPTY":
                 instructionCheck.patchValue(true, { emitEvent: false });
@@ -665,10 +665,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     private get googlePalm2TextBison() {
-        return this.generatorJsonlFormGroup.get("googlePalm2TextBison")! as FormGroup<GeneratorGooglePalm2TextBisonFormControls>;
+        return this.generatorJsonlFormGroup.get("googlePalm2TextBison") as FormGroup<GeneratorGooglePalm2TextBisonFormControls>;
     }
 
     private get openaiGpt3() {
-        return this.generatorJsonlFormGroup.get("openaiGpt3")! as FormGroup<GeneratorOpenaiGpt3FormControls>;
+        return this.generatorJsonlFormGroup.get("openaiGpt3") as FormGroup<GeneratorOpenaiGpt3FormControls>;
     }
 }

@@ -10,7 +10,7 @@ import { NzModalModule, NzModalService } from "ng-zorro-antd/modal";
 import { NzTableModule } from "ng-zorro-antd/table";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
-import { Subscription, debounceTime, defer, distinctUntilChanged, map, merge, switchMap } from "rxjs";
+import { Observable, Subscription, debounceTime, defer, distinctUntilChanged, filter, map, merge, switchMap } from "rxjs";
 
 import { DatasetService } from "./dataset.service";
 
@@ -226,45 +226,42 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.#datasetSubscription = merge(...sourceValueChanges$()).pipe(
             switchMap(() => defer(() => {
                 if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
-                    return this.googlePalm2TextBison.valueChanges;
+                    return this.googlePalm2TextBison.valueChanges as Observable<Required<Array<EditorGooglePalm2TextBisonRawValue>>>;
                 }
-                return this.openaiGpt3.valueChanges;
+                return this.openaiGpt3.valueChanges as Observable<Required<Array<EditorOpenaiGpt3RawValue>>>;
             })),
+            filter(items => !!items.length),
             debounceTime(100),
             map(items => {
-                const datasetPartial = () => {
+                const datasetRequired = () => {
                     if (this.baseModel == "GOOGLE-PALM2-TEXT-BISON") {
-                        return (items as Array<EditorGooglePalm2TextBisonRawValue>)
-                            .filter(({ inputText, outputText }) => !!inputText && !!outputText)
-                            .map(({ inputText, outputText }) => {
-                                return {
-                                    input_text: inputText.replace(/"/g, '\"').trim(),
-                                    output_text: outputText.replace(/"/g, '\"').trim()
-                                };
-                            });
-                    }
-                    return (items as Array<EditorOpenaiGpt3RawValue>)
-                        .filter(({ messages }) => !!messages?.instruction && !!messages?.user && !!messages?.assistant)
-                        .map(({ messages }) => {
+                        return (items as Array<EditorGooglePalm2TextBisonRawValue>).map(({ inputText, outputText }) => {
                             return {
-                                messages: [
-                                    {
-                                        role: "system",
-                                        content: messages.instruction.replace(/"/g, '\"').trim()
-                                    },
-                                    {
-                                        role: "user",
-                                        content: messages.user.replace(/"/g, '\"').trim()
-                                    },
-                                    {
-                                        role: "assistant",
-                                        content: messages.assistant.replace(/"/g, '\"').trim()
-                                    }
-                                ]
+                                input_text: inputText.replace(/"/g, '\"').trim(),
+                                output_text: outputText.replace(/"/g, '\"').trim()
                             };
                         });
+                    }
+                    return (items as Array<EditorOpenaiGpt3RawValue>).map(({ messages }) => {
+                        return {
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: messages.instruction.replace(/"/g, '\"').trim()
+                                },
+                                {
+                                    role: "user",
+                                    content: messages.user.replace(/"/g, '\"').trim()
+                                },
+                                {
+                                    role: "assistant",
+                                    content: messages.assistant.replace(/"/g, '\"').trim()
+                                }
+                            ]
+                        };
+                    });
                 }
-                return datasetPartial()
+                return datasetRequired()
                     .map(item => {
                         return JSON.stringify(item)
                             .replace(/":/g, "\": ")
