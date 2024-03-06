@@ -19,7 +19,7 @@ export class DatasetService {
         );
     }
 
-    replaceDataset(model: string, name: string, content: string) {
+    replaceDataset(model: string, name: string, content: Array<string>) {
         const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
         return this.#http.patch("/" + path.join("/"), { content }).pipe(
             take(1)

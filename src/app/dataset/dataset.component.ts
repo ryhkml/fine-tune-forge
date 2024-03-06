@@ -10,7 +10,7 @@ import { NzModalModule, NzModalService } from "ng-zorro-antd/modal";
 import { NzTableModule } from "ng-zorro-antd/table";
 import { NzTypographyModule } from "ng-zorro-antd/typography";
 
-import { Observable, Subscription, debounceTime, defer, distinctUntilChanged, filter, map, merge, switchMap } from "rxjs";
+import { Observable, Subscription, debounceTime, defer, filter, map, merge, switchMap } from "rxjs";
 
 import { DatasetService } from "./dataset.service";
 
@@ -261,16 +261,13 @@ export class DatasetComponent implements OnInit, OnDestroy {
                         };
                     });
                 }
-                return datasetRequired()
-                    .map(item => {
-                        return JSON.stringify(item)
-                            .replace(/":/g, "\": ")
-                            .replace(/",/g, "\", ")
-                            .replace(/},/g, "}, ");
-                    })
-                    .join("\n");
+                return datasetRequired().map(item => {
+                    return JSON.stringify(item)
+                        .replace(/":/g, "\": ")
+                        .replace(/",/g, "\", ")
+                        .replace(/},/g, "}, ");
+                });
             }),
-            distinctUntilChanged(),
             switchMap(dataset => this.#datasetService.replaceDataset(this.baseModel, name, dataset).pipe(
                 map(() => null)
             ))

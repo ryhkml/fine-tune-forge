@@ -1,9 +1,9 @@
 import { appendFile, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { createWriteStream, existsSync } from "node:fs";
 import { join } from "node:path";
 import { cwd } from "node:process";
 
-import { catchError, defer, forkJoin, map, of, switchMap, throwError } from "rxjs";
+import { catchError, defer, forkJoin, map, Observable, of, switchMap, throwError } from "rxjs";
 import { snakeCase, toUpper } from "lodash";
 
 import { HttpException } from "./exception-filter.service";
@@ -45,10 +45,29 @@ export function getDataset(model: string, name: string) {
     );
 }
 
-export function replaceDataset(model: string, name: string, content: string) {
-    const filepath = join(cwd(), "DATASET/" + model.toUpperCase() + "/" + name.toUpperCase() + ".jsonl");
-    return defer(() => writeFile(filepath, content, { encoding: "utf-8" })).pipe(
-        map(() => "DONE"),
+export function replaceDataset(model: string, name: string, content: Array<string>) {
+    const sourceStream$ = new Observable<string>(observer => {
+        const filepath = join(cwd(), "DATASET/" + model.toUpperCase() + "/" + name.toUpperCase() + ".jsonl");
+        const writable = createWriteStream(filepath);
+        if (content.length > 1) {
+            for (let i = 0; i < content.length; i++) {
+                const chunk = content[i];
+                writable.write(chunk);
+                if (i != (content.length - 1)) {
+                    writable.write("\n");
+                }
+            }
+        } else {
+            writable.write(content[0]);
+        }
+        writable.end();
+        writable.on("error", e => observer.error(e));
+        writable.on("close", () => {
+            observer.next("DONE");
+            observer.complete();
+        });
+    });
+    return sourceStream$.pipe(
         catchError(e => throwError(() => new HttpException(String(e))))
     );
 }
