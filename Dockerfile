@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 ENV NODE_ENV=production
 
@@ -18,37 +18,37 @@ RUN npm ci --omit=dev && \
     cd node_modules && \
     rm -rf typescript && \
     find ./ -type f \( -name "package.json" \
-        -o -name "collections.json" \
-        -o -name "collection.json" \
-        -o -name "migration.json" \
-        -o -name "migrations.json" \
-        -o -name "schema.json" \
-        -o -name "*-lock.json" \
-        -o -name "*.cjs.map" \
-        -o -name "*.mjs.map" \
-        -o -name "*.js.map" \
-        -o -name "*.ts.map" \
-        -o -name "*.cts" \
-        -o -name "*.js.flow" \
-        -o -name "*tsconfig*.json" \
-        -o -name "LICENSE*" \
-        -o -name "*License*.txt" \
-        -o -name "README*" \
-        -o -name "*.css" \
-        -o -name "*.sass" \
-        -o -name "*.scss" \
-        -o -name "*.eot" \
-        -o -name "*.html" \
-        -o -name "*.jpg" \
-        -o -name "*.jpeg" \
-        -o -name "*.less" \
-        -o -name "*.png" \
-        -o -name "*.svg" \
-        -o -name "*.swf" \
-        -o -name "*.tmpl" \
-        -o -name "*.template" \
-        -o -name "*.woff" \
-        -o -name "*.bazel" \) -exec rm -rf {} \; && \
+    -o -name "collections.json" \
+    -o -name "collection.json" \
+    -o -name "migration.json" \
+    -o -name "migrations.json" \
+    -o -name "schema.json" \
+    -o -name "*-lock.json" \
+    -o -name "*.cjs.map" \
+    -o -name "*.mjs.map" \
+    -o -name "*.js.map" \
+    -o -name "*.ts.map" \
+    -o -name "*.cts" \
+    -o -name "*.js.flow" \
+    -o -name "*tsconfig*.json" \
+    -o -name "LICENSE*" \
+    -o -name "*License*.txt" \
+    -o -name "README*" \
+    -o -name "*.css" \
+    -o -name "*.sass" \
+    -o -name "*.scss" \
+    -o -name "*.eot" \
+    -o -name "*.html" \
+    -o -name "*.jpg" \
+    -o -name "*.jpeg" \
+    -o -name "*.less" \
+    -o -name "*.png" \
+    -o -name "*.svg" \
+    -o -name "*.swf" \
+    -o -name "*.tmpl" \
+    -o -name "*.template" \
+    -o -name "*.woff" \
+    -o -name "*.bazel" \) -exec rm -rf {} \; && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \; && \
     cd /app/dist/fine-tune-forge && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \; && \
@@ -56,7 +56,7 @@ RUN npm ci --omit=dev && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \;
 
 # Final stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 LABEL maintainer="Reyhan Kamil <mail@ryhkml.dev>"
 
