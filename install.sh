@@ -1,10 +1,7 @@
-#!/bin/bash
-
 set -e
 
 cat <<EOF >.env
 COOKIE_PARSER_SECRET_KEY=""
-CSRF_KEY="_CSRF"
 # Optional
 ## For more information visit https://cloud.google.com/document-ai/docs/process-documents-client-libraries#client-libraries-usage-nodejs
 GCP_PROJECT_ID=""
@@ -16,7 +13,7 @@ GCP_DOC_AI_PROCESSOR_NAME=""
 GCP_DOC_AI_SKIP_HUMAN_REVIEW="0"
 EOF
 
-npm install
+npm i --no-audit --no-fund
 
 echo
 echo "File .env created"
