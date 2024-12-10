@@ -9,11 +9,11 @@ RUN apk update && \
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
 COPY dist ./dist/
 COPY tls ./tls/
 
-RUN npm ci --omit=dev && \
+RUN npm i --omit=dev --no-audit --no-fund && \
     node-prune && \
     cd node_modules && \
     rm -rf typescript && \
