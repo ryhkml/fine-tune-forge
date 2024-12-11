@@ -1,7 +1,7 @@
 {
 	"name": "fine-tune-forge",
 	"description": "FineTuneForge is JSONL generator designed to elevate the fine-tuninode_modules/.bin/ng process of cutting-edge language models like Google's PaLM 2 and OpenAI's GPT-3.5",
-	"version": "1.0.0-beta.2",
+	"version": "1.0.0-beta.3",
 	"license": "MIT",
 	"author": {
 		"name": "Reyhan Kamil",
