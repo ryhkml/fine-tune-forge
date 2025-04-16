@@ -5,24 +5,21 @@ import { map, of, take } from "rxjs";
 
 @Injectable()
 export class DatasetService {
+	readonly #http = inject(HttpClient);
 
-    readonly #http = inject(HttpClient);
+	getDataset(model: string, name: string) {
+		if (model == "" || name == "") {
+			return of("");
+		}
+		const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
+		return this.#http.get<{ payload: string }>("/" + path.join("/")).pipe(
+			map((v) => v.payload),
+			take(1)
+		);
+	}
 
-    getDataset(model: string, name: string) {
-        if (model == "" || name == "") {
-            return of("");
-        }
-        const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
-        return this.#http.get<{ payload: string }>("/" + path.join("/")).pipe(
-            map(v => v.payload),
-            take(1)
-        );
-    }
-
-    replaceDataset(model: string, name: string, content: Array<string>) {
-        const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
-        return this.#http.patch("/" + path.join("/"), { content }).pipe(
-            take(1)
-        );
-    }
+	replaceDataset(model: string, name: string, content: Array<string>) {
+		const path = ["dataset", model.toLowerCase(), name.toLowerCase()];
+		return this.#http.patch("/" + path.join("/"), { content }).pipe(take(1));
+	}
 }
