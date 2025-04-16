@@ -23,7 +23,7 @@ To get started with FineTuneForge, follow these steps:
 ```sh
 git clone https://github.com/ryhkml/fine-tune-forge.git
 cd fine-tune-forge
-sh install.sh
+./install.sh
 ```
 
 ### Usage
@@ -40,14 +40,28 @@ Serve server
 npm run serve
 ```
 
+Or using docker/podman compose
+
+```sh
+docker compose -p ftf --env-file .env up -d --build
+```
+
+### Update
+
+After performing a git pull, just run the following command:
+
+```sh
+./update.sh
+```
+
 ## Directory Structure
 
 FineTuneForge is organized into several directories, each serving a specific purpose in the workflow of the JSONL generator. Below is an overview of these directories and their intended use:
 
--   `DATADOC_OCR`: This directory acts as a temporary storage for OCR (Optical Character Recognition) images
--   `DATASET`: The `DATASET` directory is the designated location for storing the completed dataset files. Once the JSONL files have been generated and are ready for use in fine-tuning the language models, they are placed in this directory
--   `DATATMP`: This directory for temporary storage of instruction content
--   `tls`: This directory is reserved for storing SSL/TLS certificates
+- `DATADOC_OCR`: This directory acts as a temporary storage for OCR (Optical Character Recognition) images
+- `DATASET`: The `DATASET` directory is the designated location for storing the completed dataset files. Once the JSONL files have been generated and are ready for use in fine-tuning the language models, they are placed in this directory
+- `DATATMP`: This directory for temporary storage of instruction content
+- `tls`: This directory is reserved for storing SSL/TLS certificates
 
 ## Configuring SSL/TLS for HTTPS
 
@@ -57,9 +71,9 @@ To enable HTTPS in the application, you need to configure SSL/TLS certificates c
 
 Before you start, ensure you have the following files placed in the `tls` directory:
 
--   `fullchain.pem`: This is your certificate file that contains the full chain of trust, including any intermediate certificates along with your own
--   `cert-key.pem`: This file contains your private key and must be kept secure. It is used to establish the encrypted connection
--   `ca.crt` (optional): This Certificate Authority (CA) file is used if you need to specify an external CA
+- `fullchain.pem`: This is your certificate file that contains the full chain of trust, including any intermediate certificates along with your own
+- `cert-key.pem`: This file contains your private key and must be kept secure. It is used to establish the encrypted connection
+- `ca.crt` (optional): This Certificate Authority (CA) file is used if you need to specify an external CA
 
 If you use docker, uncomment the environment variable `PROTOCOL_SERVER` in `docker-compose.yaml`
 
