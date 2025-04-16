@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 ENV NODE_ENV=production
 
@@ -17,21 +17,7 @@ RUN npm i --omit=dev --no-audit --no-fund && \
     node-prune && \
     cd node_modules && \
     rm -rf typescript && \
-    find ./ -type f \( -name "package.json" \
-    -o -name "collections.json" \
-    -o -name "collection.json" \
-    -o -name "migration.json" \
-    -o -name "migrations.json" \
-    -o -name "schema.json" \
-    -o -name "*-lock.json" \
-    -o -name "*.cjs.map" \
-    -o -name "*.mjs.map" \
-    -o -name "*.js.map" \
-    -o -name "*.ts.map" \
-    -o -name "*.cts" \
-    -o -name "*.js.flow" \
-    -o -name "*tsconfig*.json" \
-    -o -name "LICENSE*" \
+    find ./ -type f \( -o -name "LICENSE*" \
     -o -name "*License*.txt" \
     -o -name "README*" \
     -o -name "*.css" \
@@ -56,7 +42,7 @@ RUN npm i --omit=dev --no-audit --no-fund && \
     find ./ -type f \( -name "*" \) -exec chmod 400 {} \;
 
 # Final stage
-FROM node:20-alpine
+FROM node:22-alpine
 
 LABEL maintainer="Reyhan Kamil <mail@ryhkml.dev>"
 
